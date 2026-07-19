@@ -7,7 +7,8 @@
  */
 
 import { createProvider } from './providers/index.js';
-import { defaultMetrics, WINDOWS } from './metrics.js';
+import { defaultTiles, compileTile, WINDOWS } from './metrics.js';
+import { getTiles } from './settings.js';
 
 /**
  * @typedef {Object} Snapshot
@@ -33,15 +34,16 @@ export async function buildSnapshot(connection, windowKey = 'week') {
 
   const viewer = await provider.getViewer();
   const win = WINDOWS[windowKey] ?? '7d';
-  const defs = defaultMetrics(win);
+  // Prefer the connection's saved tiles; fall back to the starter set.
+  const tiles = (await getTiles(connection.id)) || defaultTiles();
 
   const metrics = await Promise.all(
-    defs.map(async (def) => {
-      const issues = await provider.searchIssues(def.filter);
+    tiles.map(async (tile) => {
+      const issues = await provider.searchIssues(compileTile(tile, win));
       return {
-        key: def.key,
-        label: def.label,
-        color: def.color,
+        key: tile.key,
+        label: tile.label,
+        color: tile.color,
         value: issues.length,
         stories: issues.slice(0, 25).map((i) => ({
           id: i.id,

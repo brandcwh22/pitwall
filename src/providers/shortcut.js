@@ -9,7 +9,7 @@
  * Docs: https://developer.shortcut.com/api/rest/v3
  */
 
-import { Provider, windowStart } from './base.js';
+import { Provider, windowStart, categoryFromName } from './base.js';
 
 const API = 'https://api.app.shortcut.com/api/v3';
 
@@ -142,13 +142,14 @@ export class ShortcutProvider extends Provider {
   }
 }
 
-/** Bucket a Shortcut state into a normalized category. */
+/** Bucket a Shortcut state into a normalized category. Prefer Shortcut's own
+ *  state type (done/started/unstarted); fall back to name-based inference. */
 function categorize(state) {
-  const name = (state.name || '').toLowerCase();
-  if (/qa|test/.test(name)) return 'qa';
-  if (state.type === 'done' || /deploy|done|complete|tested/.test(name)) return 'done';
-  if (state.type === 'started' || /dev|progress|review/.test(name)) return 'started';
-  return 'unstarted';
+  const byName = categoryFromName(state.name);
+  if (byName === 'qa') return 'qa'; // name signal for QA beats the coarse type
+  if (state.type === 'done') return 'done';
+  if (state.type === 'started') return 'started';
+  return byName;
 }
 
 /**

@@ -18,6 +18,10 @@ import { existsSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { loadConfig, ROOT } from './config.js';
 import { buildSnapshot } from './snapshot.js';
+import { createProvider } from './providers/index.js';
+import { getConnectionSettings, saveTiles } from './settings.js';
+import { defaultTiles } from './metrics.js';
+import { categoryFromName } from './providers/base.js';
 
 // Load .env if present (Node built-in, no dependency). Shell env still wins.
 try {
@@ -62,6 +66,40 @@ async function sampleSnapshot(windowKey) {
   return { ...raw, window: windowKey || raw.window };
 }
 
+/** Distinct statuses seen in the sample snapshot, for sample-mode onboarding. */
+async function sampleStates() {
+  const snap = await sampleSnapshot();
+  const seen = new Map();
+  for (const m of snap.metrics || []) {
+    for (const s of m.stories || []) {
+      if (s.state && !seen.has(s.state)) seen.set(s.state, categoryFromName(s.state));
+    }
+  }
+  return [...seen.entries()].map(([name, category]) => ({ id: name, name, category }));
+}
+
+/** Read and JSON-parse a request body (bounded). */
+function readBody(req, limit = 1_000_000) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (c) => {
+      data += c;
+      if (data.length > limit) reject(new Error('body too large'));
+    });
+    req.on('end', () => {
+      if (!data) return resolve({});
+      try { resolve(JSON.parse(data)); } catch (e) { reject(new Error('invalid JSON body')); }
+    });
+    req.on('error', reject);
+  });
+}
+
+/** Resolve the connection referenced by ?c= (or the first configured one). */
+function pickConnection(cfg, url) {
+  const id = url.searchParams.get('c') || url.searchParams.get('connection');
+  return id ? cfg.connections.find((c) => c.id === id) : cfg.connections[0];
+}
+
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`);
@@ -89,12 +127,51 @@ const server = createServer(async (req, res) => {
         return sendJson(res, 200, await sampleSnapshot(windowKey));
       }
 
-      const id = url.searchParams.get('c') || url.searchParams.get('connection');
-      const conn = id ? cfg.connections.find((c) => c.id === id) : cfg.connections[0];
-      if (!conn) return sendJson(res, 404, { ok: false, error: `No connection "${id}"` });
+      const conn = pickConnection(cfg, url);
+      if (!conn) return sendJson(res, 404, { ok: false, error: 'No matching connection' });
 
       const snapshot = await buildSnapshot(conn, windowKey);
       return sendJson(res, 200, snapshot);
+    }
+
+    // Statuses available on the connected platform — powers status selection.
+    if (path === '/api/states') {
+      const cfg = await loadConfig();
+      if (cfg.sample) return sendJson(res, 200, await sampleStates());
+
+      const conn = pickConnection(cfg, url);
+      if (!conn) return sendJson(res, 404, { ok: false, error: 'No matching connection' });
+      const provider = createProvider(conn.provider, { token: conn.token, options: conn.options });
+      const states = await provider.listStates();
+      return sendJson(res, 200, states);
+    }
+
+    // Per-connection tile settings (which statuses to track, scope, …).
+    if (path === '/api/settings') {
+      const cfg = await loadConfig();
+      const conn = pickConnection(cfg, url);
+      const id = conn ? conn.id : 'sample';
+
+      if (req.method === 'GET') {
+        const saved = cfg.sample ? null : await getConnectionSettings(id);
+        return sendJson(res, 200, {
+          connection: id,
+          scopeDefault: (saved && saved.scopeDefault) || 'me',
+          tiles: (saved && saved.tiles) || defaultTiles(),
+          usingDefaults: !(saved && saved.tiles),
+        });
+      }
+
+      if (req.method === 'POST' || req.method === 'PUT') {
+        if (cfg.sample || !conn) {
+          return sendJson(res, 400, { ok: false, error: 'Connect a platform before saving settings' });
+        }
+        const body = await readBody(req);
+        const saved = await saveTiles(id, { tiles: body.tiles, scopeDefault: body.scopeDefault });
+        return sendJson(res, 200, { ok: true, connection: id, ...saved });
+      }
+
+      return sendJson(res, 405, { ok: false, error: 'Method not allowed' });
     }
 
     if (path.startsWith('/api/')) {

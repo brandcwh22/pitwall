@@ -97,6 +97,22 @@ export class Provider {
 }
 
 /**
+ * Best-effort category for a status, inferred from its name. Used for smart
+ * defaults in onboarding (the user can always override). Order matters:
+ * "done" terms are checked before "qa" so "Tested"/"Deployed" resolve to done
+ * even though they contain the substring "test".
+ * @param {string} name
+ * @returns {'unstarted'|'started'|'qa'|'done'}
+ */
+export function categoryFromName(name) {
+  const n = String(name || '').toLowerCase();
+  if (/deploy|done|complete|shipped|closed|tested|resolved/.test(n)) return 'done';
+  if (/qa|verif|test/.test(n)) return 'qa';
+  if (/dev|progress|start|doing|review|building/.test(n)) return 'started';
+  return 'unstarted';
+}
+
+/**
  * Turn a relative window like '7d' / '30d' into an ISO date `from` boundary.
  * Shared helper so every adapter interprets windows identically.
  * @param {string|null|undefined} within

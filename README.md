@@ -52,9 +52,25 @@ Tokens are read from **environment variables only** and are never written to
 | **Test Cases Created** | Test-case stories you authored |
 | **Tested** | Stories you own that reached *Tested* / *Deployed* |
 
-Metrics are defined once, provider-neutrally, in
-[`src/metrics.js`](src/metrics.js) — edit the labels, colours, or filters to fit
-your workflow.
+These are **starter defaults**. Every tile is really a small config object —
+which statuses to count, whether it's scoped to you or the whole team, and so on
+— so tiles adapt to *your* workflow instead of assuming specific status names.
+
+### Configuring your tiles
+
+Your platform's real statuses drive the tiles. The server exposes:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/states?c=<connection>` | Every status on the connected platform (with a suggested category) — so you can pick which ones to track |
+| `GET /api/settings?c=<connection>` | Your saved tiles for that connection (or the starter defaults) |
+| `POST /api/settings?c=<connection>` | Save your tiles `{ tiles: [...], scopeDefault }` |
+
+Saved tiles live in `settings.json` — **git-ignored and local**, like your token.
+A tile is defined in [`src/metrics.js`](src/metrics.js) (`Tile`): a label, colour,
+`scope` (`me`/`team`), `role` (`owner`/`requester`), the `states` to group, an
+optional `type`/`text`, and how the time window applies (`bound`). A browser
+picker to build these visually is the next milestone.
 
 ## Architecture
 
@@ -94,6 +110,8 @@ npm test        # run the unit tests (node:test)
 
 ## Roadmap
 
+- [x] Config-driven tiles: read platform statuses, save per-connection tile setups
+- [ ] Settings UI — pick/group statuses into tiles from the browser
 - [ ] Finish the Jira adapter; add Linear and GitHub Issues
 - [ ] First-run onboarding UI (add a connection from the browser)
 - [ ] Port the richer views from the v1 prototype (pace/lap analytics, the
