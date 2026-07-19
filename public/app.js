@@ -2,7 +2,7 @@
   var ALL = window.SC_DATA;
   if(!ALL){ document.body.innerHTML = "<p style='color:#fff;padding:40px;font-family:sans-serif'>data.js not found.</p>"; return; }
 
-  var WORKSPACES = ["g2g", "pipwave"];
+  var WORKSPACES = Object.keys(ALL);   // connection ids from SC_DATA (or ["sample"])
   var WINDOWS = ["today", "week", "month", "all"];
   var ws = "g2g", win = "week";
   try{ var sv = sessionStorage.getItem("pitwall_ws"); if(WORKSPACES.indexOf(sv) >= 0) ws = sv; }catch(e){}
@@ -393,9 +393,27 @@
     writeHash();
     renderAll(false);
   }
-  var wsSegEl = document.getElementById("wsSeg");
-  if(wsSegEl){ wsSegEl.querySelectorAll("a").forEach(function(a){
-    a.addEventListener("click", function(ev){ ev.preventDefault(); setWorkspace(a.dataset.ws); }); }); }
+  // Build the workspace toggle from the actual connections (not hardcoded).
+  function wsLabel(k){ try{ var w=ALL[k][Object.keys(ALL[k])[0]]; return (w&&w.meta&&w.meta.workspace)||k; }catch(e){ return k; } }
+  function renderWsSeg(){
+    var seg = document.getElementById("wsSeg");
+    if(!seg) return;
+    var real = WORKSPACES.filter(function(k){ return k!=="sample"; });
+    var html = "";
+    real.forEach(function(k){
+      var inner = LOGOS[k] ? '<img class="ws-logo" src="'+LOGOS[k]+'" alt="'+esc(wsLabel(k))+'">'
+                           : '<span class="ws-name">'+esc(wsLabel(k))+'</span>';
+      html += '<a data-ws="'+esc(k)+'" title="'+esc(wsLabel(k))+'">'+inner+'</a>';
+    });
+    html += real.length
+      ? '<a class="ws-add" href="onboard.html" title="Add a platform" aria-label="Add a platform">+</a>'
+      : '<a class="ws-connect" href="onboard.html">Connect your platform</a>';
+    seg.innerHTML = html;
+    seg.querySelectorAll("a[data-ws]").forEach(function(a){
+      a.addEventListener("click", function(ev){ ev.preventDefault(); setWorkspace(a.dataset.ws); });
+    });
+  }
+  renderWsSeg();
   var winSegEl = document.getElementById("winSeg");
   if(winSegEl){ winSegEl.querySelectorAll("a").forEach(function(a){
     a.addEventListener("click", function(ev){ ev.preventDefault(); setWindow(a.dataset.win); }); }); }

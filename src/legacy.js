@@ -65,22 +65,26 @@ function spread(oneByWin) {
   return out;
 }
 
-/** Build `SC_DATA` for every connection (or the bundled sample). */
+async function sampleData() {
+  const raw = JSON.parse(await readFile(join(ROOT, 'data', 'sample.json'), 'utf8'));
+  return { sample: spread({ week: toLegacyWindow(raw, 'week') }) };
+}
+
+/** Build `SC_DATA` for every connection (or the bundled sample). Resilient: a
+ *  connection whose data can't be fetched (e.g. bad token) is skipped rather
+ *  than breaking the whole board; if none succeed, fall back to sample. */
 export async function buildLegacyData(cfg) {
-  if (cfg.sample) {
-    const raw = JSON.parse(await readFile(join(ROOT, 'data', 'sample.json'), 'utf8'));
-    const one = toLegacyWindow(raw, 'week');
-    return { sample: spread({ week: one }) };
-  }
+  if (cfg.sample) return sampleData();
 
   const out = {};
   for (const conn of cfg.connections) {
-    const byWin = {};
-    for (const w of WINS) {
-      const snap = await buildSnapshot(conn, w);
-      byWin[w] = toLegacyWindow(snap, w);
+    try {
+      const byWin = {};
+      for (const w of WINS) byWin[w] = toLegacyWindow(await buildSnapshot(conn, w), w);
+      out[conn.id] = byWin;
+    } catch (err) {
+      console.error('[pitwall] legacy build failed for', conn.id, '—', err && err.message);
     }
-    out[conn.id] = byWin;
   }
-  return out;
+  return Object.keys(out).length ? out : sampleData();
 }

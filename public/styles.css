@@ -1473,3 +1473,11 @@ body:has(#app.garage-mode) .hero{display:none}
 /* scroll lock — freeze the background page IN PLACE while an overlay is on top (position-fixed technique preserves scroll position) */
 html.scroll-locked{ overflow:hidden; }
 html.scroll-locked body{ position:fixed; top:var(--lock-top,0); left:0; right:0; overflow:hidden; }
+
+/* Connection toggle: text labels for real connections + connect/add entry */
+.seg.ws .ws-name{font-family:"Saira Condensed",sans-serif;font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:#c3ccd8;opacity:.6;transition:.15s ease}
+.seg.ws a.active .ws-name,.seg.ws a:hover .ws-name{opacity:1;color:#fff}
+.seg.ws .ws-add{font-family:"Saira Condensed",sans-serif;font-weight:800;font-size:17px;line-height:1;color:var(--muted);min-width:auto;padding:7px 13px}
+.seg.ws .ws-add:hover{color:#fff}
+.seg.ws .ws-connect{font-family:"Saira Condensed",sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:linear-gradient(180deg,var(--red),var(--red-deep));min-width:auto;padding:8px 16px;white-space:nowrap}
+.seg.ws .ws-connect:hover{filter:brightness(1.08)}
