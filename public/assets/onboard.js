@@ -38,7 +38,7 @@
       el.grid.innerHTML = '<p class="muted">No providers are enabled. See <code>src/providers/index.js</code>.</p>';
       return;
     }
-    var LIVERY = ['#e10600', '#19f0c0', '#b14dff', '#ff9d2e'];
+    var LIVERY = ['#c41f1a', '#1fb597', '#9a55d9', '#e08a2c'];
     var HAS_ICON = { shortcut: 1, jira: 1 };
     el.grid.innerHTML = '';
     state.providers.forEach(function (p, i) {
