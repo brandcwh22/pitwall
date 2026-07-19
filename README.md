@@ -111,7 +111,7 @@ npm test        # run the unit tests (node:test)
 ## Roadmap
 
 - [x] Config-driven tiles: read platform statuses, save per-connection tile setups
-- [ ] Settings UI — pick/group statuses into tiles from the browser
+- [x] Settings UI — pick/group statuses into tiles from the browser (`/settings.html`)
 - [ ] Finish the Jira adapter; add Linear and GitHub Issues
 - [ ] First-run onboarding UI (add a connection from the browser)
 - [ ] Port the richer views from the v1 prototype (pace/lap analytics, the

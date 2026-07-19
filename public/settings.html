@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pit Wall — Configure Tiles</title>
+    <link rel="icon" href="favicon.svg" />
+    <link rel="stylesheet" href="assets/app.css" />
+    <link rel="stylesheet" href="assets/settings.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="flag" aria-hidden="true">🏁</span>
+        <span class="brand-name">Pit Wall</span>
+        <span class="brand-sub">Configure Tiles</span>
+      </div>
+      <div class="controls">
+        <a class="sync" href="index.html">← Back to board</a>
+        <button class="sync" id="addBtn">＋ Add tile</button>
+        <button class="sync primary" id="saveBtn">Save</button>
+      </div>
+    </header>
+
+    <div class="banner" id="banner" hidden></div>
+
+    <main class="settings">
+      <section class="intro">
+        <h1>Which statuses do you track?</h1>
+        <p class="muted">
+          Each tile counts issues in the statuses you choose. Pick from your
+          connected platform's real workflow below — group several statuses into
+          one tile, set whether it's scoped to you or the whole team, and save.
+        </p>
+        <div class="palette-key" id="statusKey"></div>
+      </section>
+
+      <div id="tiles" class="tiles"></div>
+
+      <p class="muted foot-hint">
+        Saved to <code>settings.json</code> on your machine. Your dashboard uses
+        these tiles the next time you sync.
+      </p>
+    </main>
+
+    <!-- Tile card template -->
+    <template id="tileTpl">
+      <section class="tile-card">
+        <div class="tile-head">
+          <span class="drag" title="colour"></span>
+          <input class="tile-label" type="text" placeholder="Tile name" />
+          <button class="del" title="Remove tile" aria-label="Remove tile">✕</button>
+        </div>
+
+        <div class="tile-row">
+          <label>Colour</label>
+          <div class="swatches"></div>
+        </div>
+
+        <div class="tile-row">
+          <label>Scope</label>
+          <div class="seg small scope">
+            <button data-scope="me" type="button">Just me</button>
+            <button data-scope="team" type="button">Whole team</button>
+          </div>
+          <div class="seg small role">
+            <button data-role="owner" type="button">as owner</button>
+            <button data-role="requester" type="button">as requester</button>
+          </div>
+        </div>
+
+        <div class="tile-row statuses-row">
+          <label>Statuses</label>
+          <div class="chips"></div>
+          <select class="add-status"><option value="">＋ add status…</option></select>
+        </div>
+
+        <div class="tile-row advanced">
+          <label>Filters</label>
+          <input class="tile-type" type="text" placeholder="type (e.g. bug)" />
+          <input class="tile-text" type="text" placeholder="text match" />
+          <div class="seg small bound">
+            <button data-bound="none" type="button">No window</button>
+            <button data-bound="updated" type="button">Updated in window</button>
+            <button data-bound="created" type="button">Created in window</button>
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <script src="assets/settings.js"></script>
+  </body>
+</html>

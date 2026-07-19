@@ -78,6 +78,12 @@ body {
   border: 1px solid color-mix(in srgb, var(--yellow) 40%, var(--line));
   color: var(--ink); font-size: 13px;
 }
+.banner.ok {
+  background: color-mix(in srgb, var(--green) 18%, var(--panel));
+  border-color: color-mix(in srgb, var(--green) 40%, var(--line));
+}
+.banner a { color: var(--accent); }
+a.sync { text-decoration: none; display: inline-flex; align-items: center; }
 
 /* Layout */
 .grid {
