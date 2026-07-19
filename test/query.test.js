@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { toShortcutDSL } from '../src/providers/shortcut.js';
-import { toJQL } from '../src/providers/jira.js';
+import { toJQL, jiraCategory, JiraProvider } from '../src/providers/jira.js';
 import { windowStart } from '../src/providers/base.js';
 import { compileTile } from '../src/metrics.js';
 
@@ -41,6 +41,30 @@ test('compileTile: team scope drops the person filter', () => {
   const q = compileTile({ role: 'owner', scope: 'team', states: ['QA'] }, '7d');
   assert.equal(q.owner, undefined);
   assert.equal(q.requester, undefined);
+});
+
+test('jiraCategory: QA name wins, else statusCategory.key maps', () => {
+  assert.equal(jiraCategory({ name: 'Ready for QA', statusCategory: { key: 'indeterminate' } }), 'qa');
+  assert.equal(jiraCategory({ name: 'In Progress', statusCategory: { key: 'indeterminate' } }), 'started');
+  assert.equal(jiraCategory({ name: 'Done', statusCategory: { key: 'done' } }), 'done');
+  assert.equal(jiraCategory({ name: 'Backlog', statusCategory: { key: 'new' } }), 'unstarted');
+});
+
+test('JiraProvider._toIssue maps a Jira payload to the normalized shape', () => {
+  const p = new JiraProvider({ token: 'x', options: { baseUrl: 'https://acme.atlassian.net', email: 'a@b.co' } });
+  const issue = p._toIssue({
+    key: 'QA-42',
+    fields: {
+      summary: 'Login throttling', status: { name: 'Ready for QA' },
+      issuetype: { name: 'Bug' }, assignee: { accountId: 'u1' }, reporter: { accountId: 'u2' },
+      created: '2026-01-01T00:00:00.000Z', updated: '2026-01-02T00:00:00.000Z', resolutiondate: null,
+    },
+  });
+  assert.equal(issue.id, 'QA-42');
+  assert.equal(issue.title, 'Login throttling');
+  assert.equal(issue.type, 'bug');
+  assert.equal(issue.state, 'Ready for QA');
+  assert.equal(issue.url, 'https://acme.atlassian.net/browse/QA-42');
 });
 
 test('compileTile: bound maps the window to the right axis', () => {

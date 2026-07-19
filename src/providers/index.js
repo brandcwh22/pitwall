@@ -14,15 +14,11 @@ import { JiraProvider } from './jira.js';
 /** @type {Record<string, typeof import('./base.js').Provider>} */
 export const PROVIDERS = {
   [ShortcutProvider.id]: ShortcutProvider,
-  // Enable once ./jira.js is complete:
-  // [JiraProvider.id]: JiraProvider,
-};
-
-/** All providers, including incomplete ones, for docs/onboarding UI. */
-export const ALL_PROVIDERS = {
-  [ShortcutProvider.id]: ShortcutProvider,
   [JiraProvider.id]: JiraProvider,
 };
+
+/** All providers registered, for docs/onboarding UI. */
+export const ALL_PROVIDERS = PROVIDERS;
 
 /**
  * Instantiate a provider by id.
