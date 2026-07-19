@@ -18,8 +18,9 @@
 /* Tile cards: board timing-tower gradient, tinted by the tile's own colour */
 .tile-card {
   --livery: var(--silver);
-  background: linear-gradient(100deg, color-mix(in srgb, var(--livery) 13%, #0d1016) 0%, #0b0e14 56%);
-  border: 1px solid var(--line); border-radius: var(--radius);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--livery) 13%, #171c26) 0%, #12161f 56%);
+  border: 1px solid #2a3341; border-radius: var(--radius);
+  box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   padding: 15px 16px; animation: cardIn 0.4s ease both;
 }
 .tile-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
