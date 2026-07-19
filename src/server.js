@@ -29,6 +29,11 @@ import { createProvider, listProviderMeta, splitCredentials } from './providers/
 import { getConnectionSettings, saveTiles } from './settings.js';
 import { defaultTiles } from './metrics.js';
 import { categoryFromName } from './providers/base.js';
+import { buildLegacyData } from './legacy.js';
+
+// Cache of the v1-shaped SC_DATA; rebuilt on /api/refresh or connection changes.
+let legacyCache = null;
+const invalidateLegacy = () => { legacyCache = null; };
 
 // Load .env if present (Node built-in, no dependency). Shell env still wins.
 try {
@@ -121,6 +126,26 @@ const server = createServer(async (req, res) => {
       });
     }
 
+    // Legacy v1 frontend data: window.SC_DATA (built from v2 providers, cached).
+    if (path === '/data.js') {
+      const cfg = await loadConfig();
+      if (!legacyCache) legacyCache = await buildLegacyData(cfg);
+      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' });
+      return res.end('window.SC_DATA = ' + JSON.stringify(legacyCache) + ';\n');
+    }
+
+    // v1 Sync button: rebuild the snapshot and hand back the whole SC_DATA.
+    if (path === '/api/refresh') {
+      const cfg = await loadConfig();
+      legacyCache = await buildLegacyData(cfg);
+      return sendJson(res, 200, { ok: true, snapshot: legacyCache });
+    }
+
+    // v1 activity bell — not wired to a source yet; return empty so it's quiet.
+    if (path === '/api/activity') {
+      return sendJson(res, 200, { ok: true, items: [], events: [] });
+    }
+
     if (path === '/api/snapshot') {
       const cfg = await loadConfig();
       const windowKey = url.searchParams.get('window') || cfg.defaultWindow;
@@ -154,6 +179,7 @@ const server = createServer(async (req, res) => {
       const id = url.searchParams.get('c');
       if (!id) return sendJson(res, 400, { ok: false, error: 'connection id (?c=) required' });
       await removeConnection(id);
+      invalidateLegacy();
       return sendJson(res, 200, { ok: true });
     }
 
@@ -183,6 +209,7 @@ const server = createServer(async (req, res) => {
           token,
           options,
         });
+        invalidateLegacy();
         return sendJson(res, 200, { ok: true, connection: saved });
       } catch (err) {
         return sendJson(res, 400, { ok: false, error: String(err && err.message || err) });
@@ -223,6 +250,7 @@ const server = createServer(async (req, res) => {
         }
         const body = await readBody(req);
         const saved = await saveTiles(id, { tiles: body.tiles, scopeDefault: body.scopeDefault });
+        invalidateLegacy();
         return sendJson(res, 200, { ok: true, connection: id, ...saved });
       }
 

@@ -1,0 +1,25 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a1a1d"/>
+      <stop offset="1" stop-color="#050506"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff2d2d"/>
+      <stop offset="1" stop-color="#c8102e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- App tile -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" fill="url(#bg)"/>
+  <rect x="6" y="6" width="1012" height="1012" rx="220" fill="none" stroke="#2c2c30" stroke-width="4"/>
+
+  <!-- Speed chevrons (forward motion) -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- trailing ghosts -->
+    <polyline points="300,332 470,512 300,692" stroke="url(#red)" stroke-width="78" opacity="0.22"/>
+    <polyline points="448,332 618,512 448,692" stroke="url(#red)" stroke-width="84" opacity="0.45"/>
+    <!-- lead chevron -->
+    <polyline points="600,322 782,512 600,702" stroke="url(#red)" stroke-width="92"/>
+  </g>
+</svg>

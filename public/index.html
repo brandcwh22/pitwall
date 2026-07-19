@@ -1,53 +1,660 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pit Wall — QA Telemetry</title>
-    <meta name="description" content="A provider-agnostic QA telemetry dashboard, F1 broadcast style." />
-    <link rel="icon" href="favicon.svg" />
-    <link rel="stylesheet" href="assets/app.css" />
-  </head>
-  <body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pit Wall · QA Telemetry</title>
+<link rel="icon" type="image/svg+xml" href="logos/pitwall-icon.svg" />
+<link rel="icon" type="image/png" sizes="256x256" href="logos/pitwall-icon-256.png" />
+<link rel="apple-touch-icon" href="logos/pitwall-icon-256.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Saira:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- start lights intro -->
+  <div id="intro">
+    <div class="intro-stage">
+      <div class="intro-word">Pit Wall</div>
+      <div class="intro-tag">QA Telemetry</div>
+      <div class="gantry-housing"><div class="gantry" id="gantry"></div></div>
+      <div class="intro-status" id="introStatus">Formation lap</div>
+    </div>
+    <div class="intro-go" id="introGo"></div>
+  </div>
+
+  <!-- sync loader: random circuit + lapping dot -->
+  <div class="loader" id="loader">
+    <div class="loader-card">
+      <div class="loader-track" id="loaderTrack"></div>
+      <div class="loader-cap"><span id="loaderName">—</span><small>Loading telemetry…</small></div>
+    </div>
+  </div>
+
+  <!-- MINIMALIST HEADER (solid full-width sticky nav, pinned at the top) -->
+    <!-- LEFT RAIL: persistent view switcher, tucked below the header (Board is home) -->
+    <nav class="railnav" id="railNav" role="tablist" aria-orientation="vertical" aria-label="Switch view">
+      <button class="rail-btn" id="boardBtn" role="tab" aria-selected="true" title="QA Dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span class="rl-lab">Board</span>
+      </button>
+      <button class="rail-btn" id="paddockBtn" role="tab" aria-selected="false" aria-pressed="false" title="The Paddock — QA automation team">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="rl-lab">Paddock</span>
+      </button>
+      <button class="rail-btn" id="garageBtn" role="tab" aria-selected="false" aria-pressed="false" title="The Garage — Playwright automation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-5 9 5v12"/><path d="M2 21h20"/><path d="M7 21v-5h10v5"/><path d="M7 13h10"/></svg>
+        <span class="rl-lab">Garage</span>
+      </button>
+      <button class="rail-btn" id="f1Btn" role="tab" aria-selected="false" aria-pressed="false" title="F1 news &amp; standings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4"/><path d="M4 4c3.5-2 6.5 2 10 0s5-1.5 6-1v9c-1-.5-3 1-6 1s-6.5-2-10 0z"/></svg>
+        <span class="rl-lab">F1</span>
+      </button>
+    </nav>
+
     <header class="topbar">
-      <div class="brand">
-        <span class="flag" aria-hidden="true">🏁</span>
-        <span class="brand-name">Pit Wall</span>
-        <span class="brand-sub" id="driver">—</span>
-      </div>
-      <div class="controls">
-        <select class="conn-sel" id="connSel" title="Switch connection" hidden></select>
-        <div class="seg" id="windowSeg" role="tablist" aria-label="Time window">
-          <button data-window="today">Today</button>
-          <button data-window="week" class="active">Week</button>
-          <button data-window="month">Month</button>
-          <button data-window="all">All</button>
+      <div class="syncbar" id="syncBar" aria-hidden="true"></div>
+      <div class="tb-left">
+        <button class="tb-logobtn" id="logoSaver" type="button" title="Start screensaver — press Enter or Esc to resume" aria-label="Start screensaver">
+          <img class="tb-logo" src="logos/pitwall-icon-256.png" alt="" aria-hidden="true" />
+          <span class="tb-logo-hint" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </span>
+        </button>
+        <div class="tb-title">
+          <h1>Pit Wall<span class="tb-dim">#22</span><span class="tb-nm" id="driver">—</span></h1>
+          <span class="tb-view" id="tbView" hidden></span>
         </div>
-        <span class="stamp" id="stamp"></span>
-        <a class="sync" href="settings.html" id="configureLink" title="Configure tiles">⚙ Configure</a>
-        <button class="sync" id="syncBtn">↻ Sync</button>
+      </div>
+      <div class="tb-right">
+        <div class="seg ws" id="wsSeg">
+          <a data-ws="g2g" title="G2G" aria-label="G2G"><img class="ws-logo" src="logos/g2g.png" alt="G2G" /></a>
+          <a data-ws="pipwave" title="Pipwave" aria-label="Pipwave"><img class="ws-logo" src="logos/pipwave.png" alt="Pipwave" /></a>
+        </div>
+        <span class="tb-divider" aria-hidden="true"></span>
+        <div class="tb-upd" role="status" aria-live="polite">
+          <span class="tb-live" aria-hidden="true"></span>
+          <span class="tb-updlab">Updated</span>
+          <span class="tb-updval" id="snapTime">—</span>
+        </div>
+        <span class="tb-divider" aria-hidden="true"></span>
+        <div class="tb-actions">
+          <div class="bell-wrap">
+            <button class="bell tb-icon" id="bellBtn" title="Activity">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span class="bell-badge" id="bellBadge" hidden>0</span>
+            </button>
+            <div class="notif-panel" id="notifPanel">
+              <div class="notif-head">
+                <span>Race Control · Activity</span>
+                <label class="notif-mute"><input type="checkbox" id="muteChk" /> mute radio</label>
+              </div>
+              <div class="notif-list" id="notifList"><div class="notif-empty">Listening for activity…</div></div>
+            </div>
+          </div>
+          <button class="tb-icon" id="reportBtn" title="Generate report">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          </button>
+          <button class="sync-btn" id="syncBtn" title="Pull live data from Shortcut">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg>
+            <span id="syncLabel">Sync</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <div class="banner" id="banner" hidden></div>
+  <!-- hero banner image — sits below the nav, scrolls away under it, and fades into the background -->
+  <div class="hero" aria-hidden="true"></div>
 
-    <main class="grid">
-      <section class="panel tower">
-        <h2 class="panel-title">Timing Tower</h2>
-        <ol class="tower-list" id="tower"></ol>
+  <div class="wrap" id="app" style="visibility:hidden">
+
+    <!-- FILTER ROW -->
+    <nav class="filterbar">
+      <div class="seg" id="winSeg">
+        <a data-win="today">Today</a>
+        <a data-win="week">This Week</a>
+        <a data-win="month">This Month</a>
+        <a data-win="all">All Time</a>
+      </div>
+    </nav>
+
+    <!-- REAL F1 — dedicated view; the flag button swaps the QA dashboard for this hub -->
+    <div id="f1View">
+      <div class="f1v-head">
+        <div class="f1v-head-scrim"></div>
+        <div class="f1v-headl">
+          <img class="f1v-logo" src="logos/f1-logo.png" alt="Formula 1" />
+          <div class="f1v-headtext">
+            <div class="f1v-eyebrow">FIA Formula 1 World Championship</div>
+            <h1 class="f1v-title">Formula 1 <span id="f1Season"></span></h1>
+          </div>
+        </div>
+        <div class="f1v-hint" id="f1Hint">Live</div>
+      </div>
+
+      <!-- SECTION: Season overview — telemetry strip + progress -->
+      <section class="f1-section">
+        <div class="f1-sechead"><span class="f1-secico"><svg viewBox="0 0 24 24"><path d="M4 18.5a8 8 0 0 1 16 0"/><path d="M12 18.5l4.5-4"/><circle cx="12" cy="18.5" r="1.4" fill="currentColor" stroke="none"/></svg></span><h2>Season Overview</h2><span class="f1-secmeta" id="f1SeasonMeta"></span></div>
+        <div class="f1-stats" id="f1Stats"><div class="f1-msg">Loading…</div></div>
+        <div class="f1-progress" id="f1Progress"></div>
       </section>
 
-      <section class="panel feed">
-        <h2 class="panel-title" id="feedTitle">Telemetry Feed</h2>
-        <ul class="feed-list" id="feed"></ul>
+      <!-- SECTION: Race weekend — next + last race, with the full season calendar revealed inline from the next-race card -->
+      <section class="f1-section" id="f1CalSection">
+        <div class="f1-sechead"><span class="f1-secico"><svg viewBox="0 0 24 24"><path d="M5 3v18"/><rect x="5" y="4" width="14" height="9"/><path d="M5 4h4.66v4.5H5zM14.33 4h4.67v4.5h-4.67zM9.66 8.5h4.67V13H9.66z" fill="currentColor" stroke="none"/></svg></span><h2>Race Weekend</h2></div>
+        <div class="f1v-top">
+          <div class="f1v-card f1v-card-next" id="f1Next"><div class="f1-msg">Loading…</div></div>
+          <div class="f1v-card f1v-card-last" id="f1Last"><div class="f1-msg">Loading…</div></div>
+        </div>
+        <div class="f1-calwrap" id="f1CalWrap">
+          <div class="f1-callead"><span class="f1-callead-t">Full Season Calendar</span><span class="f1-secmeta" id="f1CalMeta"></span></div>
+          <div id="f1Calendar" class="f1-cal"><div class="f1-msg">Loading…</div></div>
+        </div>
       </section>
-    </main>
+
+      <!-- SECTION: Last race full classification -->
+      <section class="f1-section">
+        <div class="f1-sechead"><span class="f1-secico"><svg viewBox="0 0 24 24"><circle cx="12" cy="14" r="7"/><path d="M12 14V9.5"/><path d="M9.5 3h5"/><path d="M12 3v3"/><path d="M18.5 8.5l1.4-1.4"/></svg></span><h2>Last Race Classification</h2><span class="f1-secmeta" id="f1ResultsMeta"></span></div>
+        <div id="f1Results" class="f1-results"><div class="f1-msg">Loading…</div></div>
+      </section>
+
+      <!-- SECTION: Championship standings -->
+      <section class="f1-section">
+        <div class="f1-sechead"><span class="f1-secico"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.6v1.4A2.5 2.5 0 0 0 7 10"/><path d="M17 6h2.4v1.4A2.5 2.5 0 0 1 17 10"/><path d="M12 14v3"/><path d="M9.5 20h5l-.4-3h-4.2z"/></svg></span><h2>Championship Standings</h2></div>
+        <div class="f1v-grid2">
+          <div class="f1v-panel">
+            <div class="f1-sublab">Drivers' Championship</div>
+            <div id="f1Drivers" class="f1-stand"><div class="f1-msg">Loading…</div></div>
+          </div>
+          <div class="f1v-panel">
+            <div class="f1-sublab">Constructors' Championship</div>
+            <div id="f1Constructors" class="f1-stand"><div class="f1-msg">Loading…</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: Latest news -->
+      <section class="f1-section">
+        <div class="f1-sechead"><span class="f1-secico"><svg viewBox="0 0 24 24"><path d="M4 5h13v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M7 9h7M7 12.5h7M7 16h4"/></svg></span><h2>Latest News</h2></div>
+        <div id="f1News" class="f1-news"><div class="f1-msg">Loading…</div></div>
+      </section>
+    </div>
+
+    <!-- THE PADDOCK — talk to the QA automation team; they share one context board -->
+    <div id="paddockView">
+      <div class="pdk-head">
+        <div class="pdk-head-l">
+          <div class="pdk-eyebrow"><span class="pdk-live"></span> QA Automation Team</div>
+          <h1 class="pdk-title">The Paddock</h1>
+          <div class="pdk-sub">Brief your specialists — they share one context board and build on each other's work.</div>
+        </div>
+        <div class="pdk-roster" id="pdkRoster"></div>
+      </div>
+
+      <div class="pdk-layout">
+        <aside class="pdk-sessions">
+          <button class="pdk-new" id="pdkNew" type="button">＋ New session</button>
+          <div class="pdk-slist" id="pdkSlist"><div class="pdk-slist-empty">No sessions yet.</div></div>
+        </aside>
+
+        <section class="pdk-chat">
+          <div class="pdk-chat-head">
+            <div class="pdk-ch-title" id="pdkChTitle">No session selected</div>
+            <div class="pdk-ch-chips" id="pdkChChips"></div>
+            <button class="pdk-clear" id="pdkClear" type="button" title="Clear this session's board" hidden>Clear board</button>
+          </div>
+          <div class="pdk-msgs" id="pdkMsgs"><div class="pdk-empty" id="pdkEmpty">Create a session to brief the team.</div></div>
+          <div class="pdk-compose" id="pdkCompose" hidden>
+            <div class="pdk-pick"><span class="pdk-pick-lab">To</span><select id="pdkAgent" class="pdk-agent"></select></div>
+            <textarea id="pdkText" rows="2" placeholder="Brief the selected driver…  (Enter to send · type @name to switch driver)"></textarea>
+            <button class="pdk-send" id="pdkSend">Send</button>
+          </div>
+        </section>
+
+        <aside class="pdk-board">
+          <div class="pdk-board-head">Context Board</div>
+          <div class="pdk-board-body" id="pdkBoard"><div class="pdk-board-empty">The shared context appears here — requirement, stories under test, and every contribution.</div></div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- THE GARAGE — Playwright automation: browse/edit specs, run them, read results -->
+    <div id="garageView">
+      <div class="grg-head">
+        <div class="grg-head-l">
+          <div class="grg-eyebrow"><span class="grg-live"></span> Playwright Automation</div>
+          <h1 class="grg-title">The Garage</h1>
+          <div class="grg-sub" id="grgSub">Browse, edit, generate, and run your end-to-end test suite.</div>
+        </div>
+        <div class="grg-head-r">
+          <button class="ed-btn grg-genbtn" id="grgGenBtn" type="button">✨ Generate from story</button>
+          <button class="ed-btn" id="grgReload" type="button" title="Rescan the suite">↻ Rescan</button>
+        </div>
+      </div>
+
+      <div class="grg-layout">
+        <aside class="grg-tree-wrap">
+          <input id="grgFilter" class="ed-input grg-filter" placeholder="Filter specs…" autocomplete="off" />
+          <div class="grg-tree" id="grgTree"><div class="grg-tree-empty">Loading suite…</div></div>
+        </aside>
+
+        <section class="grg-editor">
+          <div class="grg-ed-head">
+            <div class="grg-ed-path" id="grgPath">No file selected</div>
+            <div class="grg-ed-actions">
+              <select id="grgProject" class="grg-project" title="Playwright project"></select>
+              <button class="ed-btn" id="grgSave" type="button" disabled>Save</button>
+              <button class="ed-btn ed-btn-primary grg-run" id="grgRun" type="button" disabled>▶ Run</button>
+            </div>
+          </div>
+          <textarea id="grgCode" class="grg-code" spellcheck="false" placeholder="Select a spec from the tree, or generate one from a Shortcut story…" disabled></textarea>
+          <div class="grg-ed-foot"><span class="grg-dirty" id="grgDirty" hidden>● Unsaved changes</span><span class="grg-status" id="grgSaveStatus"></span></div>
+        </section>
+
+        <aside class="grg-results">
+          <div class="grg-res-head">
+            <span class="grg-res-title">Results</span>
+            <span class="grg-res-flag" id="grgResFlag"></span>
+            <button class="ed-btn grg-stop" id="grgStop" type="button" hidden>■ Stop</button>
+          </div>
+          <div class="grg-res-summary" id="grgResSummary"></div>
+          <div class="grg-res-body" id="grgResBody"><div class="grg-res-empty">Run a spec to see pass/fail, durations, and error traces here.</div></div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="flag"></span> Timing Tower</h2>
+          <span class="hint">Select a metric →</span>
+        </div>
+        <div class="tower" id="tower"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2><span class="flag"></span> Telemetry Feed</h2>
+          <span class="hint" id="feedHint">Live</span>
+        </div>
+        <div class="feed-meta">
+          <div><div class="feed-name" id="feedName">—</div><div class="feed-query" id="feedQuery"></div></div>
+          <div class="feed-big" id="feedBig">0<span class="unit">PTS</span></div>
+        </div>
+        <div class="feed-note" id="feedNote" style="display:none"><span class="yf">⚠</span><span id="feedNoteTxt"></span></div>
+        <div class="order" id="order"></div>
+      </section>
+    </div>
+
+    <!-- PIT BOARD · RUNNING ORDER -->
+    <section class="panel" id="orderPanel">
+      <div class="panel-head">
+        <h2><span class="flag"></span> Pit Board <span class="ph-dim">· Running Order</span></h2>
+        <button class="feed-orderbtn" id="orderBtn" type="button" title="Paste a list of stories to pull">＋ Paste list</button>
+      </div>
+      <div class="order-list" id="orderList" hidden></div>
+      <div class="order-empty" id="orderEmpty">No running order yet — click <b>＋ Paste list</b> to pull your stories into a to-do list.</div>
+    </section>
+
+    <!-- CONSTRUCTORS' CHAMPIONSHIP -->
+    <section class="panel champ">
+      <div class="panel-head"><h2><span class="trophy">🏆</span> Constructors' Championship</h2><span class="hint" id="champWindow">—</span></div>
+      <div id="champBoard"></div>
+    </section>
+
+    <div class="grid grid-2">
+      <section class="panel">
+        <div class="panel-head"><h2><span class="flag"></span> QA Circuit</h2>
+          <div class="circ-controls">
+            <div class="circ-view" id="circView">
+              <a data-cv="track" class="active" title="Single track"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14c0-2.2 1.4-3.5 3.6-3.5h4.8c1.3 0 2.1-.7 2.1-1.9 0-1.9 1.2-3.1 3.2-3.1 2.2 0 3.3 1.5 3.3 3.6 0 2.2-1.4 3.5-3.6 3.5h-4.8c-1.3 0-2.1.7-2.1 1.9 0 1.9-1.2 3.1-3.2 3.1C5.1 17.6 4 16.1 4 14Z"/><path d="M7.5 10.5v3.5" stroke-width="1.6"/></svg></a>
+              <a data-cv="grid" title="2026 calendar"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></a>
+            </div>
+          </div>
+        </div>
+        <div class="circuit" id="circuit"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2><span class="flag"></span> Pace · Fastest Lap</h2><span class="hint" id="paceHint">QA turnaround</span></div>
+        <div class="pace" id="pace"></div>
+      </section>
+    </div>
+
+    <!-- FORM GUIDE + RACE CONTROL -->
+    <section class="panel">
+      <div class="panel-head"><h2><span class="flag"></span> Form Guide</h2><span class="hint">Completed · last 6 weeks</span></div>
+      <div class="rc" id="raceControl"></div>
+      <div class="form-head" id="formHead"></div>
+      <div class="form" id="form"></div>
+    </section>
 
     <footer class="footer">
-      <span id="footMode"></span>
-      <a href="https://github.com" target="_blank" rel="noopener">Pit Wall · v2</a>
+      <div class="f-left">Auto-syncs hourly · click <b>Sync</b> anytime, or ask Claude Code: <code>refresh the F1 dashboard</code>.</div>
+      <div class="f-right" id="footMeta">—</div>
     </footer>
+  </div>
 
-    <script src="assets/app.js"></script>
-  </body>
+  <div class="toast" id="toast"></div>
+  <audio id="radio" src="assets/radio.mp3" preload="auto"></audio>
+
+  <!-- idle screensaver: telemetry stream + shift countdown -->
+  <div class="saver" id="saver">
+    <canvas id="saverCanvas" class="saver-canvas"></canvas>
+    <div class="saver-overlay">
+      <div class="saver-top">
+        <div class="saver-read"><span id="svSpd">0</span><small>km/h</small></div>
+        <div class="saver-rev" id="saverRev"></div>
+        <div class="saver-read"><span id="svGear">N</span><small>gear</small></div>
+      </div>
+      <div class="saver-center">
+        <div class="saver-cd-lab" id="svLab">Shift ends in</div>
+        <div class="saver-cd" id="svCd">00:00:00</div>
+        <div class="saver-cd-sub" id="svSub">Box at 18:00</div>
+        <!-- reaction start-lights mini-game -->
+        <div class="saver-game" id="svGame">
+          <div class="sg-lights" id="sgLights"></div>
+          <div class="sg-time" id="sgTime"></div>
+          <div class="sg-status" id="sgStatus">▶ Press SPACE — reaction test</div>
+        </div>
+      </div>
+      <div class="saver-stats" id="svStats"></div>
+      <div class="saver-foot" id="svFoot">Pit Wall · press ENTER or ESC to resume</div>
+    </div>
+    <div class="saver-flash" id="svFlash"></div>
+    <div class="saver-wipe" id="svWipe"></div>
+    <div class="saver-go" id="svGo">🏁</div>
+  </div>
+
+  <!-- story editor (overlay) -->
+  <div class="fmodal" id="editModal">
+    <div class="fmodal-card ed-card">
+      <div class="fmodal-head">
+        <div class="fm-toprow">
+          <div class="fm-eyebrow"><span class="fm-flag"></span> Race Control</div>
+          <button class="fmodal-close" id="edClose" aria-label="Close" title="Close">✕</button>
+        </div>
+        <div class="fm-titlerow">
+          <button class="fm-t" id="edTitle" type="button" title="Click to copy story link">Story</button>
+          <button id="edCopy" class="fm-iconbtn ed-copy" type="button" title="Copy story link" aria-label="Copy link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+          <a id="edOpen" class="fm-iconbtn ed-open" target="_blank" rel="noopener" title="Open in Shortcut" aria-label="Open in Shortcut">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+          </a>
+        </div>
+        <div class="fm-sub" id="edSub">—</div>
+      </div>
+      <div class="ed-body">
+        <div class="ed-meta" id="edMeta">Loading story…</div>
+
+        <div class="ed-section">
+          <div class="ed-label">Status</div>
+          <div class="ed-row" style="align-items:center">
+            <select id="edState" class="ed-input"></select>
+            <button class="ed-btn" id="edStateSave">Update</button>
+            <span class="ed-saved" id="edStateSaved"></span>
+          </div>
+        </div>
+
+        <div class="ed-section">
+          <div class="ed-seclab"><span class="ed-label">Description</span>
+            <button class="ed-edit" id="edDescEdit" type="button">Edit</button></div>
+          <div class="ed-view" id="edDescView"></div>
+          <div class="ed-editwrap" id="edDescEditWrap" hidden>
+            <textarea id="edDesc" class="ed-input ed-textarea ed-desc" placeholder="No description yet…"></textarea>
+            <div class="ed-row" style="align-items:center">
+              <button class="ed-btn ed-btn-primary" id="edDescSave">Save description</button>
+              <button class="ed-btn" id="edDescCancel">Cancel</button>
+              <button class="ed-btn ed-attach" id="edDescAttach" type="button" title="Attach file or paste an image">📎 Attach</button>
+              <span class="ed-saved" id="edSaved"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ed-section">
+          <div class="ed-label">Comments</div>
+          <textarea id="edComment" class="ed-input ed-textarea" placeholder="Write a comment…  (paste an image to attach)"></textarea>
+          <div class="ed-row" style="align-items:center">
+            <button class="ed-btn" id="edCommentPost">Post comment</button>
+            <button class="ed-btn ed-attach" id="edCommentAttach" type="button" title="Attach file or paste an image">📎 Attach</button>
+          </div>
+          <div class="ed-comments" id="edComments"><div class="ed-empty">Loading…</div></div>
+        </div>
+        <div class="ed-section">
+          <div class="ed-label">New linked story <span class="ed-hint">— relates to this one</span></div>
+          <input id="edNewName" class="ed-input" placeholder="New story title (e.g. defect found while testing)…" />
+          <div class="ed-row">
+            <select id="edNewType" class="ed-input">
+              <option value="bug">Bug</option><option value="chore">Chore</option><option value="feature">Feature</option>
+            </select>
+            <button class="ed-btn ed-btn-primary" id="edCreate">Create &amp; link</button>
+          </div>
+          <div class="ed-created" id="edCreated"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit running order dialog -->
+  <!-- GENERATE REPORT -->
+  <div class="fmodal" id="reportModal">
+    <div class="fmodal-card rep-card">
+      <div class="fmodal-head">
+        <div class="fm-head-l">
+          <div class="fm-eyebrow"><span class="fm-flag"></span> Reports</div>
+          <div class="fm-t">Generate Report</div>
+          <div class="fm-sub">Summary metrics and the full story list for the selected timeframe — exported to Excel (.xlsx) and a shareable HTML report.</div>
+        </div>
+        <button class="fmodal-close" id="reportClose" aria-label="Close" title="Close">✕</button>
+      </div>
+      <div class="rep-body">
+        <div class="rep-field">
+          <div class="ed-label">Workspace</div>
+          <div class="rep-ws" id="repWs">—</div>
+        </div>
+        <div class="rep-field">
+          <div class="ed-label">Timeframe</div>
+          <div class="seg rep-seg" id="repSeg">
+            <a data-win="today">Today</a>
+            <a data-win="week">This Week</a>
+            <a data-win="month">This Month</a>
+            <a data-win="all">All Time</a>
+          </div>
+        </div>
+        <div class="rep-actions">
+          <button class="ed-btn ed-btn-primary" id="repXlsx">⬇ Excel (.xlsx)</button>
+          <button class="ed-btn" id="repHtml">⬇ HTML report</button>
+          <span class="rep-status" id="repStatus"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fmodal" id="orderModal">
+    <div class="fmodal-card order-card">
+      <div class="fmodal-head">
+        <div class="fm-head-l">
+          <div class="fm-eyebrow"><span class="fm-flag"></span> Pit Board</div>
+          <div class="fm-t">Edit Running Order</div>
+          <div class="fm-sub">Paste a mixed g2g + pipwave list in priority order. Shortcut URLs are best — they tag the workspace. Each story is pulled into the to-do list.</div>
+        </div>
+        <button class="fmodal-close" id="orderModalClose" aria-label="Close" title="Close">✕</button>
+      </div>
+      <div class="order-modal-body">
+        <textarea id="orderInput" placeholder="e.g.  https://app.shortcut.com/g2g/story/332226/…&#10;      https://app.shortcut.com/pipwave/story/4521/…&#10;      #331902"></textarea>
+        <div class="order-set-row">
+          <button class="ed-btn ed-btn-primary" id="orderApply" type="button">Pull stories</button>
+          <button class="ed-btn" id="orderClear" type="button">Clear all</button>
+          <span class="order-stat" id="orderStat"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Paddock session -->
+  <div class="fmodal" id="pdkModal">
+    <div class="fmodal-card pdk-modal-card">
+      <div class="fmodal-head">
+        <div class="fm-head-l">
+          <div class="fm-eyebrow"><span class="fm-flag"></span> The Paddock</div>
+          <div class="fm-t">New Testing Session</div>
+          <div class="fm-sub">Pin the stories under test and describe the requirement. The whole team shares this context.</div>
+        </div>
+        <button class="fmodal-close" id="pdkModalClose" aria-label="Close" title="Close">✕</button>
+      </div>
+      <div class="pdk-modal-body">
+        <div class="rep-field">
+          <div class="ed-label">Title</div>
+          <input id="pdkTitle" class="ed-input" placeholder="e.g. Checkout flow — regression" />
+        </div>
+        <div class="rep-field">
+          <div class="ed-label">Workspace</div>
+          <div class="seg rep-seg" id="pdkWsSeg"><a data-ws="g2g">G2G</a><a data-ws="pipwave">Pipwave</a></div>
+        </div>
+        <div class="rep-field">
+          <div class="ed-label">Stories under test <span class="ed-hint">— search &amp; pick the stories you'll test</span></div>
+          <div class="pdk-storysel">
+            <input id="pdkStorySearch" class="ed-input" placeholder="Search by title or #ID…" autocomplete="off" />
+            <div class="pdk-sresults" id="pdkStoryResults" hidden></div>
+          </div>
+          <div class="pdk-schips" id="pdkStoryChips"></div>
+        </div>
+        <div class="rep-field">
+          <div class="ed-label">Requirement / scope <span class="ed-hint">— what are we testing?</span></div>
+          <textarea id="pdkReq" class="ed-input pdk-ta" placeholder="Paste acceptance criteria, a feature description, or the goal for this session…"></textarea>
+        </div>
+        <div class="rep-actions">
+          <button class="ed-btn ed-btn-primary" id="pdkCreate">Create session</button>
+          <span class="rep-status" id="pdkCreateStatus"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Garage — generate a Playwright spec from a Shortcut story -->
+  <div class="fmodal" id="grgGenModal">
+    <div class="fmodal-card pdk-modal-card">
+      <div class="fmodal-head">
+        <div class="fm-head-l">
+          <div class="fm-eyebrow"><span class="fm-flag"></span> The Garage</div>
+          <div class="fm-t">Generate Playwright Spec</div>
+          <div class="fm-sub">Pick a story and Claude drafts a spec in your suite's house style. Review it in the editor, then Save.</div>
+        </div>
+        <button class="fmodal-close" id="grgGenClose" aria-label="Close" title="Close">✕</button>
+      </div>
+      <div class="pdk-modal-body">
+        <div class="rep-field">
+          <div class="ed-label">Workspace</div>
+          <div class="seg rep-seg" id="grgGenWsSeg"><a data-ws="g2g">G2G</a><a data-ws="pipwave">Pipwave</a></div>
+        </div>
+        <div class="rep-field">
+          <div class="ed-label">Story <span class="ed-hint">— search by title or #ID (optional)</span></div>
+          <div class="pdk-storysel">
+            <input id="grgStorySearch" class="ed-input" placeholder="Search by title or #ID…" autocomplete="off" />
+            <div class="pdk-sresults" id="grgStoryResults" hidden></div>
+          </div>
+          <div class="pdk-schips" id="grgStoryChip"></div>
+        </div>
+        <div class="rep-field">
+          <div class="ed-label">Requirement / scope <span class="ed-hint">— extra context for the test (optional)</span></div>
+          <textarea id="grgReq" class="ed-input pdk-ta" placeholder="Paste acceptance criteria or describe what the test should cover…"></textarea>
+        </div>
+        <div class="rep-actions">
+          <button class="ed-btn ed-btn-primary" id="grgGenGo">Generate spec</button>
+          <span class="rep-status" id="grgGenStatus"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- F1 news reader -->
+  <div class="fmodal" id="f1Reader">
+    <div class="fmodal-card reader-card">
+      <div class="fmodal-head">
+        <div class="fm-head-l">
+          <div class="fm-eyebrow"><span class="fm-flag"></span> Paddock Press</div>
+          <div class="fm-t" id="f1ReaderTitle">Article</div>
+          <div class="fm-sub" id="f1ReaderMeta"></div>
+        </div>
+        <button class="fmodal-close" id="f1ReaderClose" aria-label="Close" title="Close">✕</button>
+      </div>
+      <div class="reader-body" id="f1ReaderBody"></div>
+      <div class="reader-foot">
+        <a class="ed-btn" id="f1ReaderExternal" href="#" target="_blank" rel="noopener">Open original ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reflex Ring mini-game -->
+  <div class="fmodal" id="pitGame">
+    <div class="fmodal-card pg-card">
+      <div class="fmodal-head">
+        <div class="fm-head-l">
+          <div class="fm-eyebrow"><span class="fm-flag"></span> Reaction</div>
+          <div class="fm-t">Reflex Ring</div>
+          <div class="fm-sub">Hover the glowing circle as it lights up. Every hit makes it faster.</div>
+        </div>
+        <button class="fmodal-close" id="pgClose" aria-label="Close">✕</button>
+      </div>
+      <div class="pg-body">
+        <div class="pg-hud">
+          <div class="pg-timer" id="pgScore">0<small>hits</small></div>
+          <div class="pg-best" id="pgBest">Best —</div>
+        </div>
+        <div class="osu-stage" id="osuStage"></div>
+        <div class="pg-prompt" id="pgPrompt">Hover the glowing circle. It only gets faster.</div>
+        <button class="ed-btn ed-btn-primary pg-go" id="pgGo" type="button">Start</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pit Crew launcher (right edge) -->
+  <button class="pitcrew-fab" id="aiOpenBtn" type="button" title="Open Pit Crew team radio">
+    <span class="pc-ico">📻</span><span class="pc-lab">Pit Crew</span>
+  </button>
+
+  <!-- Pit Crew: per-story team radio (Claude) -->
+  <div class="ai-panel" id="aiPanel" aria-hidden="true">
+    <div class="ai-head">
+      <div class="ai-head-l">
+        <div class="ai-eyebrow"><span class="ai-wave"></span> Team Radio</div>
+        <div class="ai-title">Pit Crew</div>
+        <div class="ai-sub" id="aiSub">—</div>
+      </div>
+      <div class="ai-head-r">
+        <button class="ai-mini" id="aiClear" title="Clear this story's conversation">Clear</button>
+        <button class="ai-mini" id="aiClose" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="ai-checker"></div>
+    <div class="ai-storybar">
+      <span class="ai-sb-lab">Story</span>
+      <div class="ai-picker" id="aiPicker">
+        <button class="ai-pick-trigger" id="aiPickTrigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="ai-pick-current" id="aiPickCurrent">Select a story…</span>
+          <svg class="ai-pick-caret" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="ai-pick-menu" id="aiPickMenu" role="listbox" hidden></div>
+      </div>
+    </div>
+    <div class="ai-msgs" id="aiMsgs"></div>
+    <div class="ai-compose">
+      <textarea id="aiText" rows="2" placeholder="Radio the pit crew about this story…  (Enter to send)"></textarea>
+      <button class="ai-send" id="aiSend">Send</button>
+    </div>
+  </div>
+
+  <!-- broadcast lower-third ticker -->
+  <div class="ticker" id="ticker"><span class="tk-live">Live</span><div class="tk-track" id="tkTrack"></div></div>
+
+<!-- view-change sweep (F1 ↔ QA dashboard toggle) -->
+<div class="viewwipe" id="viewWipe" aria-hidden="true"><span class="vw-band"></span></div>
+
+<script src="assets/marked.min.js"></script>
+<script src="assets/purify.min.js"></script>
+<script src="data.js"></script>
+<script src="circuits.js"></script>
+<script src="app.js"></script>
+</body>
 </html>
