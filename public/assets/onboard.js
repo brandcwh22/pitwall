@@ -38,13 +38,22 @@
       el.grid.innerHTML = '<p class="muted">No providers are enabled. See <code>src/providers/index.js</code>.</p>';
       return;
     }
+    var LIVERY = ['#e10600', '#19f0c0', '#b14dff', '#ff9d2e'];
+    var CHEV = '<svg viewBox="0 0 48 24" fill="none" aria-hidden="true">' +
+      '<path d="M4 4l8 8-8 8M18 4l8 8-8 8M32 4l8 8-8 8" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     el.grid.innerHTML = '';
-    state.providers.forEach(function (p) {
+    state.providers.forEach(function (p, i) {
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'provider-card';
-      b.innerHTML = '<span class="name">' + esc(p.label) + '</span>' +
-        '<span class="hint">Connect with an API token</span>';
+      b.style.setProperty('--livery', LIVERY[i % LIVERY.length]);
+      b.style.animationDelay = (0.06 * i + 0.05) + 's';
+      b.innerHTML =
+        '<span class="pc-pos">' + String(i + 1).padStart(2, '0') + '</span>' +
+        '<span class="pc-chev">' + CHEV + '</span>' +
+        '<span class="pc-body"><span class="name">' + esc(p.label) + '</span>' +
+        '<span class="hint">Connect with an API token</span></span>' +
+        '<span class="pc-go">Select <em>→</em></span>';
       b.addEventListener('click', function () { chooseProvider(p); });
       el.grid.appendChild(b);
     });

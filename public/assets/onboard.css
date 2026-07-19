@@ -1,47 +1,149 @@
-/* Onboarding — layered on app.css + settings.css */
-.onboard { max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; }
+/* Onboarding — "pit-lane grid" flair, layered on app.css + settings.css */
 
-.steps { display: flex; gap: 8px; list-style: none; padding: 0; margin: 0 0 28px; flex-wrap: wrap; }
+.onboard { max-width: 760px; margin: 0 auto; padding: 30px 20px 80px; position: relative; }
+
+/* faint oversized chevron watermark echoing the Pit Wall mark */
+.onboard::before {
+  content: ""; position: fixed; right: -6vw; top: 12vh; width: 60vw; height: 60vw;
+  pointer-events: none; z-index: 0; opacity: 0.05;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 34px, rgba(225,6,0,0.6) 34px 44px, transparent 44px 78px);
+  mask: linear-gradient(90deg, transparent, #000 40%);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 40%);
+}
+.onboard > * { position: relative; z-index: 1; }
+
+/* ── Grid-slot step indicator ─────────────────────────────── */
+.steps { display: flex; gap: 0; list-style: none; padding: 0; margin: 0 0 34px; flex-wrap: wrap; }
 .steps li {
-  display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px;
-  padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px;
+  display: flex; align-items: center; gap: 9px; color: var(--muted);
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 18px 8px 12px; position: relative;
+}
+.steps li + li::before { /* track connector */
+  content: ""; width: 26px; height: 2px; margin-right: 6px;
+  background: repeating-linear-gradient(90deg, var(--line) 0 5px, transparent 5px 9px);
 }
 .steps li span {
-  width: 20px; height: 20px; border-radius: 999px; background: var(--panel-2);
-  display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+  width: 24px; height: 24px; border-radius: 6px; background: #0c1016;
+  border: 1px solid var(--line); display: inline-flex; align-items: center;
+  justify-content: center; font-family: "Spline Sans Mono", monospace; font-size: 12px; font-weight: 700;
+  transition: 0.2s ease;
 }
-.steps li.active { color: var(--ink); border-color: var(--accent); }
-.steps li.active span { background: var(--accent); color: #fff; }
-.steps li.done span { background: var(--green); color: #fff; }
+.steps li.active { color: #fff; }
+.steps li.active span {
+  background: linear-gradient(180deg, var(--red), var(--red-deep)); color: #fff;
+  border-color: transparent; box-shadow: 0 0 0 4px rgba(225,6,0,0.14), 0 6px 18px rgba(225,6,0,0.4);
+}
+.steps li.done span { background: #0c1016; color: var(--green); border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
 
-.step h1 { font-size: 24px; margin: 0 0 8px; }
-.step > .muted { margin: 0 0 20px; }
+/* ── Hero ─────────────────────────────────────────────────── */
+.step { animation: fadeUp 0.5s ease both; }
+.step h1 {
+  font-size: clamp(28px, 4.4vw, 40px); margin: 4px 0 10px; line-height: 0.92;
+  letter-spacing: 0.5px; position: relative; padding-left: 18px;
+}
+.step h1::before { /* livery tick */
+  content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 6px; border-radius: 3px;
+  background: linear-gradient(180deg, var(--red), var(--red-deep));
+  box-shadow: 0 0 16px rgba(225,6,0,0.6);
+}
+.step > .muted { margin: 0 0 26px; max-width: 52ch; }
 
-.provider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+/* ── Provider "garage" cards ──────────────────────────────── */
+.provider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+
 .provider-card {
-  text-align: left; cursor: pointer; padding: 16px; border-radius: var(--radius);
-  background: var(--panel); border: 1px solid var(--line); color: var(--ink);
-  display: flex; flex-direction: column; gap: 6px;
+  --livery: var(--red);
+  position: relative; overflow: hidden; cursor: pointer; text-align: left;
+  padding: 20px 18px 16px; border-radius: 14px; color: var(--ink);
+  background: linear-gradient(180deg, #12161e, #0d1017);
+  border: 1px solid var(--line); isolation: isolate;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  animation: cardIn 0.5s ease both;
 }
-.provider-card:hover { border-color: var(--accent); }
-.provider-card .name { font-weight: 700; font-size: 16px; }
-.provider-card .hint { color: var(--muted); font-size: 12px; }
+.provider-card::before { /* livery stripe */
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+  background: var(--livery); box-shadow: 0 0 20px -2px var(--livery);
+}
+.provider-card::after { /* diagonal sheen on hover */
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0;
+  background: repeating-linear-gradient(115deg, transparent 0 16px, color-mix(in srgb, var(--livery) 12%, transparent) 16px 20px);
+  transition: opacity 0.25s ease;
+}
+.provider-card:hover {
+  transform: translateY(-4px); border-color: color-mix(in srgb, var(--livery) 55%, var(--line));
+  box-shadow: 0 14px 40px -12px color-mix(in srgb, var(--livery) 50%, transparent);
+}
+.provider-card:hover::after { opacity: 1; }
 
-.linklike { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 13px; padding: 0 0 12px; }
+.pc-pos {
+  position: absolute; top: 12px; right: 14px; font-family: "Spline Sans Mono", monospace;
+  font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1px; opacity: 0.7;
+}
+.pc-chev {
+  position: absolute; right: -6px; bottom: -10px; width: 96px; height: 48px;
+  color: var(--livery); opacity: 0.14; transition: 0.25s ease;
+}
+.pc-chev svg { width: 100%; height: 100%; }
+.provider-card:hover .pc-chev { opacity: 0.28; transform: translateX(6px); }
+
+.pc-body { display: block; margin-top: 6px; }
+.provider-card .name {
+  display: block; font-family: "Saira Condensed", sans-serif; font-weight: 700;
+  font-size: 21px; letter-spacing: 0.4px; text-transform: uppercase;
+}
+.provider-card .hint { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.pc-go {
+  display: inline-flex; align-items: center; gap: 5px; margin-top: 16px;
+  font-family: "Spline Sans Mono", monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--livery); opacity: 0; transform: translateX(-6px); transition: 0.2s ease;
+}
+.pc-go em { font-style: normal; transition: transform 0.2s ease; }
+.provider-card:hover .pc-go { opacity: 1; transform: translateX(0); }
+.provider-card:hover .pc-go em { transform: translateX(4px); }
+
+/* ── Connect step (credentials) ───────────────────────────── */
+.linklike { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 12px;
+  letter-spacing: 0.5px; padding: 0 0 14px; text-transform: uppercase; font-family: "Spline Sans Mono", monospace; }
 .linklike:hover { color: var(--accent); }
 
-.cred-form { display: flex; flex-direction: column; gap: 14px; max-width: 460px; }
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 13px; font-weight: 600; }
+.cred-form { display: flex; flex-direction: column; gap: 16px; max-width: 480px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-family: "Spline Sans Mono", monospace; font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted);
+}
 .field .req { color: var(--accent); }
 .field input {
-  background: var(--panel-2); border: 1px solid var(--line); color: var(--ink);
-  border-radius: 8px; padding: 9px 11px; font-size: 14px;
+  background: #0b0e14; border: 1px solid var(--line); color: var(--ink);
+  border-radius: 9px; padding: 11px 13px; font-size: 14px; font-family: "Spline Sans Mono", monospace;
+  transition: 0.15s ease;
+}
+.field input:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(225,6,0,0.16);
 }
 .field .help { font-size: 12px; color: var(--muted); }
 .field .help a { color: var(--accent); }
 
-.cred-actions { display: flex; gap: 10px; margin-top: 20px; }
-.test-result { margin-top: 14px; font-size: 14px; min-height: 20px; }
-.test-result.ok { color: var(--green); }
+.cred-actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+.cred-actions .sync { padding: 10px 20px; }
+
+/* Test result reads like a lights-out signal */
+.test-result {
+  margin-top: 16px; font-size: 14px; min-height: 22px;
+  font-family: "Spline Sans Mono", monospace; letter-spacing: 0.3px;
+}
+.test-result.ok {
+  color: var(--green); text-shadow: 0 0 18px color-mix(in srgb, var(--green) 55%, transparent);
+}
 .test-result.err { color: var(--red); }
+
+/* ── Animations ───────────────────────────────────────────── */
+@keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .provider-card, .step { animation: none; }
+}
