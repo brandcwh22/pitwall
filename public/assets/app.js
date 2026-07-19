@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var state = { window: 'week', snapshot: null, selected: null, sample: false };
+  var state = { window: 'week', snapshot: null, selected: null, sample: false, conn: null };
 
   var el = {
     driver: document.getElementById('driver'),
@@ -16,6 +16,8 @@
     syncBtn: document.getElementById('syncBtn'),
     windowSeg: document.getElementById('windowSeg'),
     footMode: document.getElementById('footMode'),
+    connSel: document.getElementById('connSel'),
+    configureLink: document.getElementById('configureLink'),
   };
 
   function esc(s) {
@@ -88,10 +90,36 @@
     }
   }
 
+  function snapshotUrl() {
+    var u = '/api/snapshot?window=' + encodeURIComponent(state.window);
+    if (state.conn) u += '&c=' + encodeURIComponent(state.conn);
+    return u;
+  }
+
+  // Populate the connection switcher; hidden unless there are real connections.
+  function loadConnections() {
+    return fetch('/api/connections')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var conns = (data && data.connections) || [];
+        if (data && data.sample) return; // sample mode: no switcher
+        if (!conns.length) return;
+        var saved = localStorage.getItem('pitwall_conn');
+        state.conn = conns.some(function (c) { return c.id === saved; }) ? saved : conns[0].id;
+        el.connSel.innerHTML = conns.map(function (c) {
+          return '<option value="' + esc(c.id) + '"' + (c.id === state.conn ? ' selected' : '') + '>' +
+            esc(c.label) + '</option>';
+        }).join('') + '<option value="__add">＋ Add platform…</option>';
+        el.connSel.hidden = conns.length < 1;
+        el.configureLink.href = 'settings.html?c=' + encodeURIComponent(state.conn);
+      })
+      .catch(function () { /* switcher is optional */ });
+  }
+
   function load() {
     el.syncBtn.disabled = true;
     el.syncBtn.textContent = '↻ Syncing…';
-    fetch('/api/snapshot?window=' + encodeURIComponent(state.window))
+    fetch(snapshotUrl())
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data && data.ok === false) throw new Error(data.error || 'Snapshot failed');
@@ -121,5 +149,14 @@
 
   el.syncBtn.addEventListener('click', load);
 
-  load();
+  el.connSel.addEventListener('change', function () {
+    if (el.connSel.value === '__add') { window.location.href = 'onboard.html'; return; }
+    state.conn = el.connSel.value;
+    localStorage.setItem('pitwall_conn', state.conn);
+    el.configureLink.href = 'settings.html?c=' + encodeURIComponent(state.conn);
+    state.selected = null;
+    load();
+  });
+
+  loadConnections().then(load);
 })();

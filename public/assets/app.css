@@ -72,6 +72,12 @@ body {
 .sync:hover { border-color: var(--accent); }
 .sync[disabled] { opacity: 0.5; cursor: default; }
 
+.conn-sel {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--ink);
+  border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.conn-sel:hover { border-color: var(--accent); }
+
 .banner {
   margin: 12px 20px 0; padding: 10px 14px; border-radius: var(--radius);
   background: color-mix(in srgb, var(--yellow) 18%, var(--panel));

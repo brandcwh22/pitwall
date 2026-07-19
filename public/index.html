@@ -16,6 +16,7 @@
         <span class="brand-sub" id="driver">—</span>
       </div>
       <div class="controls">
+        <select class="conn-sel" id="connSel" title="Switch connection" hidden></select>
         <div class="seg" id="windowSeg" role="tablist" aria-label="Time window">
           <button data-window="today">Today</button>
           <button data-window="week" class="active">Week</button>
@@ -23,7 +24,7 @@
           <button data-window="all">All</button>
         </div>
         <span class="stamp" id="stamp"></span>
-        <a class="sync" href="settings.html" title="Configure tiles">⚙ Configure</a>
+        <a class="sync" href="settings.html" id="configureLink" title="Configure tiles">⚙ Configure</a>
         <button class="sync" id="syncBtn">↻ Sync</button>
       </div>
     </header>

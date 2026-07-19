@@ -130,8 +130,9 @@ npm test        # run the unit tests (node:test)
 - [x] Settings UI — pick/group statuses into tiles from the browser (`/settings.html`)
 - [x] First-run onboarding — connect a platform from the browser (`/onboard.html`)
 - [x] Desktop app — Electron shell (`npm run app`) with packaging (`npm run dist`)
-- [ ] Finish the Jira adapter; add Linear and GitHub Issues
-- [ ] Manage multiple connections / switch between them in the UI
+- [x] Jira adapter (mapping unit-tested; verify against a live instance)
+- [x] Manage multiple connections — switch between them from the dashboard
+- [ ] Add Linear and GitHub Issues adapters
 - [ ] Port the richer views from the v1 prototype (pace/lap analytics, the
       multi-agent "Paddock" review chat, the "Garage" test runner)
 - [ ] Optional Electron desktop shell
