@@ -38,14 +38,16 @@
       el.grid.innerHTML = '<p class="muted">No providers are enabled. See <code>src/providers/index.js</code>.</p>';
       return;
     }
-    var LIVERY = ['#c41f1a', '#1fb597', '#9a55d9', '#e08a2c'];
+    // Official brand colours (Simple Icons); fallback palette for future adapters.
+    var BRAND = { shortcut: '#58B1E4', jira: '#0052CC', linear: '#5E6AD2', github: '#8b949e' };
+    var FALLBACK = ['#c41f1a', '#1fb597', '#9a55d9', '#e08a2c'];
     var HAS_ICON = { shortcut: 1, jira: 1 };
     el.grid.innerHTML = '';
     state.providers.forEach(function (p, i) {
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'provider-card';
-      b.style.setProperty('--livery', LIVERY[i % LIVERY.length]);
+      b.style.setProperty('--livery', BRAND[p.id] || FALLBACK[i % FALLBACK.length]);
       b.style.animationDelay = (0.06 * i + 0.05) + 's';
       var icon = HAS_ICON[p.id]
         ? '<span class="pc-icon" style="-webkit-mask-image:url(logos/' + p.id + '.svg);mask-image:url(logos/' + p.id + '.svg)"></span>'
