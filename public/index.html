@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pit Wall — QA Telemetry</title>
+    <meta name="description" content="A provider-agnostic QA telemetry dashboard, F1 broadcast style." />
+    <link rel="icon" href="favicon.svg" />
+    <link rel="stylesheet" href="assets/app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="flag" aria-hidden="true">🏁</span>
+        <span class="brand-name">Pit Wall</span>
+        <span class="brand-sub" id="driver">—</span>
+      </div>
+      <div class="controls">
+        <div class="seg" id="windowSeg" role="tablist" aria-label="Time window">
+          <button data-window="today">Today</button>
+          <button data-window="week" class="active">Week</button>
+          <button data-window="month">Month</button>
+          <button data-window="all">All</button>
+        </div>
+        <span class="stamp" id="stamp"></span>
+        <button class="sync" id="syncBtn">↻ Sync</button>
+      </div>
+    </header>
+
+    <div class="banner" id="banner" hidden></div>
+
+    <main class="grid">
+      <section class="panel tower">
+        <h2 class="panel-title">Timing Tower</h2>
+        <ol class="tower-list" id="tower"></ol>
+      </section>
+
+      <section class="panel feed">
+        <h2 class="panel-title" id="feedTitle">Telemetry Feed</h2>
+        <ul class="feed-list" id="feed"></ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span id="footMode"></span>
+      <a href="https://github.com" target="_blank" rel="noopener">Pit Wall · v2</a>
+    </footer>
+
+    <script src="assets/app.js"></script>
+  </body>
+</html>

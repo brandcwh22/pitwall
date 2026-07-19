@@ -1,0 +1,144 @@
+/* Pit Wall — F1 broadcast theme. Dark by default, light-aware. */
+:root {
+  --bg: #0a0e14;
+  --panel: #121821;
+  --panel-2: #0e141d;
+  --line: #1e2733;
+  --ink: #e8edf4;
+  --muted: #8a97a8;
+  --accent: #e10600; /* F1 red */
+  --purple: #a855f7;
+  --silver: #c0c7d0;
+  --red: #ef4444;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --cyan: #06b6d4;
+  --teal: #14b8a6;
+  --radius: 12px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #eef1f5;
+    --panel: #ffffff;
+    --panel-2: #f4f6f9;
+    --line: #dde3ea;
+    --ink: #131922;
+    --muted: #5c6775;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border-bottom: 3px solid var(--accent);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-wrap: wrap;
+}
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.flag { font-size: 20px; }
+.brand-name { font-weight: 800; letter-spacing: 0.5px; font-size: 18px; }
+.brand-sub { color: var(--muted); font-size: 13px; }
+.controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stamp { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.seg { display: inline-flex; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button {
+  border: 0; background: transparent; color: var(--muted);
+  padding: 6px 14px; font-size: 13px; cursor: pointer;
+}
+.seg button.active { background: var(--accent); color: #fff; font-weight: 700; }
+
+.sync {
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--ink);
+  padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 13px;
+}
+.sync:hover { border-color: var(--accent); }
+.sync[disabled] { opacity: 0.5; cursor: default; }
+
+.banner {
+  margin: 12px 20px 0; padding: 10px 14px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--yellow) 18%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--yellow) 40%, var(--line));
+  color: var(--ink); font-size: 13px;
+}
+
+/* Layout */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(320px, 1.2fr);
+  gap: 16px;
+  padding: 16px 20px;
+  align-items: start;
+}
+@media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.panel-title {
+  margin: 0 0 12px; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+
+/* Timing tower */
+.tower-list { list-style: none; margin: 0; padding: 0; }
+.tower-row {
+  display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 12px;
+  padding: 11px 10px; border-radius: 8px; cursor: pointer;
+  border-left: 3px solid transparent;
+}
+.tower-row:hover { background: var(--panel-2); }
+.tower-row.active { background: var(--panel-2); border-left-color: var(--accent); }
+.tower-pos { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; text-align: center; }
+.tower-label { font-size: 14px; font-weight: 600; }
+.tower-value {
+  font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px;
+  min-width: 34px; text-align: right;
+}
+.chip { width: 8px; height: 8px; border-radius: 999px; display: inline-block; margin-right: 6px; }
+
+/* Feed */
+.feed-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.feed-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+}
+.feed-item a { color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500; }
+.feed-item a:hover { color: var(--accent); }
+.feed-state { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.feed-empty { color: var(--muted); font-size: 13px; padding: 8px; }
+
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line);
+}
+.footer a { color: var(--muted); }
+
+/* Sector colours (F1 tyre/telemetry palette) */
+.c-purple { color: var(--purple); } .bg-purple { background: var(--purple); }
+.c-silver { color: var(--silver); } .bg-silver { background: var(--silver); }
+.c-red { color: var(--red); } .bg-red { background: var(--red); }
+.c-green { color: var(--green); } .bg-green { background: var(--green); }
+.c-yellow { color: var(--yellow); } .bg-yellow { background: var(--yellow); }
+.c-cyan { color: var(--cyan); } .bg-cyan { background: var(--cyan); }
+.c-teal { color: var(--teal); } .bg-teal { background: var(--teal); }
