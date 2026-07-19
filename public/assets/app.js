@@ -42,7 +42,7 @@
     el.driver.textContent = s.viewer ? s.viewer.name + ' · ' + s.viewer.handle : '';
     el.stamp.textContent = 'Snapshot ' + timeAgo(s.generatedAt);
     el.footMode.textContent = state.sample
-      ? 'Sample data — add a connection in config.json to go live'
+      ? 'Sample data — connect a platform to go live'
       : (s.connection ? s.connection.label + ' · ' + s.connection.provider : '');
     el.banner.hidden = !state.sample;
     if (state.sample) {
