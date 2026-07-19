@@ -13,13 +13,14 @@
  * - External links open in the user's real browser; internal pages stay in-window.
  */
 
-const { app, BrowserWindow, shell, dialog } = require('electron');
+const { app, BrowserWindow, shell, dialog, nativeImage } = require('electron');
 const { spawn } = require('node:child_process');
 const http = require('node:http');
 const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const SERVER = path.join(ROOT, 'src', 'server.js');
+const ICON = path.join(ROOT, 'build', 'icon.png');
 const PORT = Number(process.env.PORT) || 4270;
 const BASE = `http://localhost:${PORT}`;
 
@@ -74,6 +75,7 @@ function createWindow() {
     minWidth: 720,
     minHeight: 520,
     title: 'Pit Wall',
+    icon: ICON,
     backgroundColor: '#0a0e14',
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, nodeIntegration: false },
@@ -97,6 +99,10 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  // Dock icon (macOS) — the window/app icon is set via BrowserWindow + build config.
+  if (process.platform === 'darwin' && app.dock) {
+    try { app.dock.setIcon(nativeImage.createFromPath(ICON)); } catch { /* optional */ }
+  }
   try {
     await ensureServer();
     createWindow();

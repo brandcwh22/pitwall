@@ -15,7 +15,7 @@ data/*.local.json
 # Dependencies & build output
 node_modules/
 dist/
-build/
+# note: build/ holds packaging resources (app icon) and IS committed; output is dist/
 
 # Logs
 *.log

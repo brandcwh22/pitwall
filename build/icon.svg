@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141b26"/>
+      <stop offset="1" stop-color="#080b11"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.34" r="0.5">
+      <stop offset="0" stop-color="#e10600" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#e10600" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+
+  <!-- rounded background -->
+  <rect x="0" y="0" width="1024" height="1024" rx="220" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="220" fill="url(#glow)"/>
+
+  <!-- start-lights gantry -->
+  <rect x="212" y="286" width="600" height="150" rx="34" fill="#0c1119" stroke="#1e2733" stroke-width="6"/>
+  <g>
+    <circle cx="312" cy="361" r="46" fill="#e10600" filter="url(#soft)"/>
+    <circle cx="437" cy="361" r="46" fill="#e10600" filter="url(#soft)"/>
+    <circle cx="562" cy="361" r="46" fill="#e10600" filter="url(#soft)"/>
+    <circle cx="312" cy="361" r="40" fill="#ff2b23"/>
+    <circle cx="437" cy="361" r="40" fill="#ff2b23"/>
+    <circle cx="562" cy="361" r="40" fill="#ff2b23"/>
+    <circle cx="687" cy="361" r="40" fill="#2a1112" stroke="#3a1416" stroke-width="4"/>
+  </g>
+
+  <!-- checkered flag strip -->
+  <g>
+    <rect x="212" y="556" width="600" height="180" rx="20" fill="#0c1119" stroke="#1e2733" stroke-width="6"/>
+    <g fill="#e8edf4">
+      <rect x="242" y="586" width="45" height="45"/><rect x="332" y="586" width="45" height="45"/>
+      <rect x="422" y="586" width="45" height="45"/><rect x="512" y="586" width="45" height="45"/>
+      <rect x="602" y="586" width="45" height="45"/><rect x="692" y="586" width="45" height="45"/>
+      <rect x="287" y="631" width="45" height="45"/><rect x="377" y="631" width="45" height="45"/>
+      <rect x="467" y="631" width="45" height="45"/><rect x="557" y="631" width="45" height="45"/>
+      <rect x="647" y="631" width="45" height="45"/>
+      <rect x="242" y="676" width="45" height="45"/><rect x="332" y="676" width="45" height="45"/>
+      <rect x="422" y="676" width="45" height="45"/><rect x="512" y="676" width="45" height="45"/>
+      <rect x="602" y="676" width="45" height="45"/><rect x="692" y="676" width="45" height="45"/>
+    </g>
+  </g>
+</svg>
