@@ -13,14 +13,28 @@ metrics and a **Telemetry Feed** of the stories behind each number.
 
 ## Quick start
 
+Two ways to run it — a **desktop app** or a **local web server**.
+
+### Desktop app (its own window)
+
 ```bash
 git clone https://github.com/<you>/pitwall.git
 cd pitwall
-npm start
+npm install      # one-time: fetches Electron
+npm run app      # opens the Pit Wall window
 ```
 
-Open **http://localhost:4200** — you'll see the dashboard populated with sample
-data. No token, no `npm install` needed (Node ≥ 18).
+`npm run dist` builds a double-clickable app into `dist/`.
+
+### Web (zero dependencies)
+
+```bash
+npm start        # → http://localhost:4200
+```
+
+No token and no `npm install` needed for web mode (Node ≥ 18 only). Either way
+you'll see the dashboard with sample data first; connect your platform to go
+live.
 
 ## Go live with your data
 
@@ -86,8 +100,9 @@ src/
     ├── shortcut.js    Shortcut adapter (reference implementation)
     ├── jira.js        Jira adapter (skeleton — see TODOs)
     └── index.js       Provider registry
-public/                Vanilla-JS frontend (Timing Tower + Telemetry Feed)
+public/                Vanilla-JS frontend (dashboard, settings, onboarding)
 data/sample.json       Bundled sample snapshot (sample mode)
+electron/main.cjs      Optional desktop shell (boots the server, opens a window)
 ```
 
 The rest of the app only ever speaks the **normalized shapes** in
@@ -114,6 +129,7 @@ npm test        # run the unit tests (node:test)
 - [x] Config-driven tiles: read platform statuses, save per-connection tile setups
 - [x] Settings UI — pick/group statuses into tiles from the browser (`/settings.html`)
 - [x] First-run onboarding — connect a platform from the browser (`/onboard.html`)
+- [x] Desktop app — Electron shell (`npm run app`) with packaging (`npm run dist`)
 - [ ] Finish the Jira adapter; add Linear and GitHub Issues
 - [ ] Manage multiple connections / switch between them in the UI
 - [ ] Port the richer views from the v1 prototype (pace/lap analytics, the

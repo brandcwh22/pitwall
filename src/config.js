@@ -17,8 +17,12 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CONFIG = join(ROOT, 'config.json');
-const SECRETS = join(ROOT, '.secrets.json');
+// Writable files (config, secrets, settings) live in DATA_DIR. It defaults to
+// the project root for dev/web use, but the desktop app points it at the OS
+// user-data dir so a packaged (read-only) app bundle can still save your setup.
+const DATA_DIR = process.env.PITWALL_DATA_DIR || ROOT;
+const CONFIG = join(DATA_DIR, 'config.json');
+const SECRETS = join(DATA_DIR, '.secrets.json');
 
 /**
  * @typedef {Object} Connection
@@ -134,4 +138,4 @@ export async function removeConnection(id) {
   }
 }
 
-export { ROOT };
+export { ROOT, DATA_DIR };

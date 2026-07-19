@@ -19,9 +19,9 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT } from './config.js';
+import { DATA_DIR } from './config.js';
 
-const FILE = join(ROOT, 'settings.json');
+const FILE = join(DATA_DIR, 'settings.json');
 
 /** @returns {Promise<Record<string, { scopeDefault?: string, tiles?: import('./metrics.js').Tile[] }>>} */
 export async function loadSettings() {
