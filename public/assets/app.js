@@ -45,8 +45,8 @@
     el.banner.hidden = !state.sample;
     if (state.sample) {
       el.banner.innerHTML =
-        'Showing <strong>sample data</strong>. Copy <code>config.example.json</code> to ' +
-        '<code>config.json</code>, set your token env var, and restart to see live QA metrics.';
+        '👋 <strong>Welcome to Pit Wall.</strong> This is sample data — ' +
+        '<a href="onboard.html">connect your platform</a> to see your real QA metrics.';
     }
 
     // Timing tower

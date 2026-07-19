@@ -1,0 +1,47 @@
+/* Onboarding — layered on app.css + settings.css */
+.onboard { max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; }
+
+.steps { display: flex; gap: 8px; list-style: none; padding: 0; margin: 0 0 28px; flex-wrap: wrap; }
+.steps li {
+  display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px;
+  padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px;
+}
+.steps li span {
+  width: 20px; height: 20px; border-radius: 999px; background: var(--panel-2);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+}
+.steps li.active { color: var(--ink); border-color: var(--accent); }
+.steps li.active span { background: var(--accent); color: #fff; }
+.steps li.done span { background: var(--green); color: #fff; }
+
+.step h1 { font-size: 24px; margin: 0 0 8px; }
+.step > .muted { margin: 0 0 20px; }
+
+.provider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.provider-card {
+  text-align: left; cursor: pointer; padding: 16px; border-radius: var(--radius);
+  background: var(--panel); border: 1px solid var(--line); color: var(--ink);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.provider-card:hover { border-color: var(--accent); }
+.provider-card .name { font-weight: 700; font-size: 16px; }
+.provider-card .hint { color: var(--muted); font-size: 12px; }
+
+.linklike { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 13px; padding: 0 0 12px; }
+.linklike:hover { color: var(--accent); }
+
+.cred-form { display: flex; flex-direction: column; gap: 14px; max-width: 460px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 13px; font-weight: 600; }
+.field .req { color: var(--accent); }
+.field input {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--ink);
+  border-radius: 8px; padding: 9px 11px; font-size: 14px;
+}
+.field .help { font-size: 12px; color: var(--muted); }
+.field .help a { color: var(--accent); }
+
+.cred-actions { display: flex; gap: 10px; margin-top: 20px; }
+.test-result { margin-top: 14px; font-size: 14px; min-height: 20px; }
+.test-result.ok { color: var(--green); }
+.test-result.err { color: var(--red); }

@@ -17,6 +17,13 @@ export class ShortcutProvider extends Provider {
   static id = 'shortcut';
   static label = 'Shortcut';
   static docsUrl = 'https://app.shortcut.com/settings/account/api-tokens';
+  /** Fields the onboarding form should collect. `option:true` → stored in options. */
+  static fields = [
+    { name: 'token', label: 'API token', type: 'password', required: true,
+      help: 'Shortcut → Settings → API Tokens' },
+    { name: 'slug', label: 'Workspace slug', type: 'text', required: false, option: true,
+      help: 'Optional — the "acme" in app.shortcut.com/acme, used to build links' },
+  ];
 
   constructor(config = {}) {
     super(config);

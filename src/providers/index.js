@@ -37,3 +37,28 @@ export function createProvider(id, config) {
   }
   return new Cls(config);
 }
+
+/** Metadata for enabled providers, for the onboarding UI to render forms. */
+export function listProviderMeta() {
+  return Object.values(PROVIDERS).map((Cls) => ({
+    id: Cls.id,
+    label: Cls.label,
+    docsUrl: Cls.docsUrl,
+    fields: Cls.fields || [{ name: 'token', label: 'API token', type: 'password', required: true }],
+  }));
+}
+
+/** Split a flat onboarding form payload into { token, options } for a provider. */
+export function splitCredentials(id, values) {
+  const Cls = ALL_PROVIDERS[id];
+  const fields = (Cls && Cls.fields) || [{ name: 'token' }];
+  const options = {};
+  let token;
+  for (const f of fields) {
+    const v = values[f.name];
+    if (v == null || v === '') continue;
+    if (f.name === 'token') token = v;
+    else if (f.option) options[f.name] = v;
+  }
+  return { token, options };
+}

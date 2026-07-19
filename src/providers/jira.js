@@ -24,6 +24,14 @@ export class JiraProvider extends Provider {
   static id = 'jira';
   static label = 'Jira';
   static docsUrl = 'https://id.atlassian.com/manage-profile/security/api-tokens';
+  static fields = [
+    { name: 'baseUrl', label: 'Site URL', type: 'text', required: true, option: true,
+      help: 'https://your-domain.atlassian.net' },
+    { name: 'email', label: 'Account email', type: 'text', required: true, option: true,
+      help: 'The email for your Atlassian account' },
+    { name: 'token', label: 'API token', type: 'password', required: true,
+      help: 'id.atlassian.com → Security → API tokens' },
+  ];
 
   constructor(config = {}) {
     super(config);

@@ -4,6 +4,7 @@
 !.env.example
 config.json
 settings.json
+.secrets.json
 .token
 .token.*
 

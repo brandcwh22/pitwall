@@ -24,21 +24,22 @@ data. No token, no `npm install` needed (Node ≥ 18).
 
 ## Go live with your data
 
-1. **Copy the config template** (it's git-ignored, so your setup stays local):
-   ```bash
-   cp config.example.json config.json
-   ```
-2. **Get an API token** for your platform
-   ([Shortcut](https://app.shortcut.com/settings/account/api-tokens)).
-3. **Set the token** as the env var your connection names (`tokenEnv`):
-   ```bash
-   cp .env.example .env
-   # edit .env → PITWALL_TOKEN_PRIMARY=your_token_here
-   ```
-4. **Restart** — `npm start`. Pit Wall now shows your real QA metrics.
+Just click **Connect your platform** on the dashboard (or open
+`http://localhost:4200/onboard.html`). The guided flow walks you through it:
 
-Tokens are read from **environment variables only** and are never written to
-`config.json` or committed. See [`.env.example`](.env.example).
+1. **Choose your platform** (Shortcut today; more via adapters).
+2. **Paste your API token** — there's a link to where you get it.
+3. **Test connection** — confirms it works and shows who you're connected as.
+4. **Pick your tiles** — see [Configuring your tiles](#configuring-your-tiles).
+
+That's it — no files to edit. Your connection is saved to `config.json` and your
+token to `.secrets.json` (perms `600`), both **git-ignored and local to your
+machine**. The token never touches `config.json` and is never committed.
+
+> **Advanced / CI:** instead of the UI, you can declare a connection in
+> `config.json` (copy `config.example.json`) and supply its token via the env var
+> named in `tokenEnv` (see `.env.example`). An env var, when set, wins over the
+> stored secret.
 
 ## What it shows
 
@@ -112,8 +113,9 @@ npm test        # run the unit tests (node:test)
 
 - [x] Config-driven tiles: read platform statuses, save per-connection tile setups
 - [x] Settings UI — pick/group statuses into tiles from the browser (`/settings.html`)
+- [x] First-run onboarding — connect a platform from the browser (`/onboard.html`)
 - [ ] Finish the Jira adapter; add Linear and GitHub Issues
-- [ ] First-run onboarding UI (add a connection from the browser)
+- [ ] Manage multiple connections / switch between them in the UI
 - [ ] Port the richer views from the v1 prototype (pace/lap analytics, the
       multi-agent "Paddock" review chat, the "Garage" test runner)
 - [ ] Optional Electron desktop shell

@@ -7,18 +7,25 @@
  * layer for connections and the snapshot builder for data, never touching a
  * vendor API directly.
  *
- *   GET /api/health              → { ok, sample, connections }
- *   GET /api/connections         → [{ id, provider, label }]
- *   GET /api/snapshot?c=&window= → Snapshot (live, or bundled sample)
+ *   GET  /api/health               → { ok, sample, connections }
+ *   GET  /api/snapshot?c=&window=  → Snapshot (live, or bundled sample)
+ *   GET  /api/states?c=            → statuses on the connected platform
+ *   GET/POST /api/settings?c=      → per-connection tile config
+ *   Onboarding:
+ *   GET  /api/providers            → connectable providers + their form fields
+ *   GET  /api/connections          → { sample, connections }
+ *   POST /api/connections/test     → verify credentials (no save)
+ *   POST /api/connections          → save a connection (+ local token)
+ *   DELETE /api/connections?c=      → remove a connection
  */
 
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
-import { loadConfig, ROOT } from './config.js';
+import { loadConfig, addConnection, removeConnection, ROOT } from './config.js';
 import { buildSnapshot } from './snapshot.js';
-import { createProvider } from './providers/index.js';
+import { createProvider, listProviderMeta, splitCredentials } from './providers/index.js';
 import { getConnectionSettings, saveTiles } from './settings.js';
 import { defaultTiles } from './metrics.js';
 import { categoryFromName } from './providers/base.js';
@@ -114,11 +121,6 @@ const server = createServer(async (req, res) => {
       });
     }
 
-    if (path === '/api/connections') {
-      const cfg = await loadConfig();
-      return sendJson(res, 200, cfg.connections.map((c) => ({ id: c.id, provider: c.provider, label: c.label })));
-    }
-
     if (path === '/api/snapshot') {
       const cfg = await loadConfig();
       const windowKey = url.searchParams.get('window') || cfg.defaultWindow;
@@ -132,6 +134,59 @@ const server = createServer(async (req, res) => {
 
       const snapshot = await buildSnapshot(conn, windowKey);
       return sendJson(res, 200, snapshot);
+    }
+
+    // Onboarding: which providers can a new user connect, and how.
+    if (path === '/api/providers') {
+      return sendJson(res, 200, listProviderMeta());
+    }
+
+    // Onboarding: connections list / create / delete.
+    if (path === '/api/connections' && req.method === 'GET') {
+      const cfg = await loadConfig();
+      return sendJson(res, 200, {
+        sample: cfg.sample,
+        connections: cfg.connections.map((c) => ({ id: c.id, provider: c.provider, label: c.label })),
+      });
+    }
+
+    if (path === '/api/connections' && req.method === 'DELETE') {
+      const id = url.searchParams.get('c');
+      if (!id) return sendJson(res, 400, { ok: false, error: 'connection id (?c=) required' });
+      await removeConnection(id);
+      return sendJson(res, 200, { ok: true });
+    }
+
+    // Onboarding: verify credentials WITHOUT saving them.
+    if (path === '/api/connections/test' && req.method === 'POST') {
+      const body = await readBody(req);
+      const { token, options } = splitCredentials(body.provider, body.values || {});
+      if (!token) return sendJson(res, 400, { ok: false, error: 'Enter your API token to test' });
+      try {
+        const provider = createProvider(body.provider, { token, options });
+        const viewer = await provider.getViewer();
+        return sendJson(res, 200, { ok: true, viewer: { name: viewer.name, handle: viewer.handle } });
+      } catch (err) {
+        return sendJson(res, 200, { ok: false, error: String(err && err.message || err) });
+      }
+    }
+
+    // Onboarding: save a verified connection (config.json + local token store).
+    if (path === '/api/connections' && (req.method === 'POST' || req.method === 'PUT')) {
+      const body = await readBody(req);
+      const { token, options } = splitCredentials(body.provider, body.values || {});
+      if (!token) return sendJson(res, 400, { ok: false, error: 'token is required' });
+      try {
+        const saved = await addConnection({
+          provider: body.provider,
+          label: body.label || body.provider,
+          token,
+          options,
+        });
+        return sendJson(res, 200, { ok: true, connection: saved });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: String(err && err.message || err) });
+      }
     }
 
     // Statuses available on the connected platform — powers status selection.

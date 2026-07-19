@@ -12,6 +12,11 @@
     { key: 'unstarted', label: 'To do' },
   ];
 
+  var params = new URLSearchParams(location.search);
+  var connParam = params.get('c');
+  var isFirstRun = params.get('first') === '1';
+  var qs = connParam ? '?c=' + encodeURIComponent(connParam) : '';
+
   var state = { tiles: [], statuses: [], sample: false };
   var el = {
     tiles: document.getElementById('tiles'),
@@ -182,13 +187,14 @@
   function save() {
     el.saveBtn.disabled = true;
     el.saveBtn.textContent = 'Saving…';
-    api('/api/settings', {
+    api('/api/settings' + qs, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tiles: state.tiles, scopeDefault: 'me' }),
     })
       .then(function (res) {
         if (res && res.ok) {
+          if (isFirstRun) { window.location.href = 'index.html'; return; }
           showBanner('Saved ✓ — <a href="index.html">back to the board</a> to see your tiles.', 'ok');
         } else {
           showBanner('Could not save: ' + esc((res && res.error) || 'unknown error'));
@@ -202,7 +208,7 @@
   }
 
   function load() {
-    Promise.all([api('/api/settings'), api('/api/states'), api('/api/health')])
+    Promise.all([api('/api/settings' + qs), api('/api/states' + qs), api('/api/health')])
       .then(function (r) {
         var settings = r[0], statuses = r[1], health = r[2];
         state.statuses = Array.isArray(statuses) ? statuses : [];
@@ -219,7 +225,9 @@
         renderAll();
         if (state.sample) {
           el.saveBtn.disabled = true;
-          showBanner('<strong>Sample mode.</strong> These are demo statuses. Connect a platform (add a token) to load your real workflow and save tiles.');
+          showBanner('<strong>Sample mode.</strong> These are demo statuses. <a href="onboard.html">Connect a platform</a> to load your real workflow and save tiles.');
+        } else if (isFirstRun) {
+          showBanner("<strong>You're connected! 🏁</strong> These are your real statuses, pre-grouped into starter tiles. Tweak them, then <strong>Save</strong> to open your board.", 'ok');
         }
       })
       .catch(function (e) { showBanner('Failed to load: ' + esc(e.message)); });
