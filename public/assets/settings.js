@@ -73,7 +73,7 @@
     // Colour swatches + the accent bar
     var drag = q('.drag');
     var swatches = q('.swatches');
-    function paintColour() { drag.style.background = 'var(--' + tile.color + ')'; }
+    function paintColour() { node.style.setProperty('--livery', 'var(--' + tile.color + ')'); }
     COLORS.forEach(function (c) {
       var b = document.createElement('button');
       b.type = 'button';
