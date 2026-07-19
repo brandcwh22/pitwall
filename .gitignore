@@ -1,0 +1,27 @@
+# Secrets & local config — never commit
+.env
+.env.*
+!.env.example
+config.json
+.token
+.token.*
+
+# Generated data snapshots (live data stays local)
+data/snapshot*.json
+data/*.local.json
+
+# Dependencies & build output
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

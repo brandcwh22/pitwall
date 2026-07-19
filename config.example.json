@@ -1,0 +1,26 @@
+{
+  "$comment": "Copy this file to config.json (git-ignored) and edit. Tokens are NEVER stored here — each connection names an env var (tokenEnv) that holds the token. See .env.example.",
+  "defaultWindow": "week",
+  "connections": [
+    {
+      "id": "primary",
+      "provider": "shortcut",
+      "label": "My Workspace",
+      "tokenEnv": "PITWALL_TOKEN_PRIMARY",
+      "options": {
+        "slug": "your-workspace-slug"
+      }
+    },
+    {
+      "$comment": "Example second connection (Jira). Enable the Jira adapter in src/providers/index.js first.",
+      "id": "team-jira",
+      "provider": "jira",
+      "label": "Team Jira",
+      "tokenEnv": "PITWALL_TOKEN_JIRA",
+      "options": {
+        "baseUrl": "https://your-domain.atlassian.net",
+        "email": "you@example.com"
+      }
+    }
+  ]
+}

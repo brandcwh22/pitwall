@@ -1,0 +1,31 @@
+{
+  "name": "pitwall",
+  "version": "2.0.0-alpha.0",
+  "description": "Pit Wall — a provider-agnostic QA telemetry dashboard. Plug in your own ticketing platform (Shortcut, Jira, …) and watch your QA metrics like an F1 broadcast.",
+  "type": "module",
+  "main": "src/server.js",
+  "bin": {
+    "pitwall": "src/server.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "qa",
+    "dashboard",
+    "shortcut",
+    "jira",
+    "ticketing",
+    "telemetry",
+    "f1"
+  ],
+  "license": "MIT",
+  "private": false,
+  "dependencies": {},
+  "devDependencies": {}
+}
