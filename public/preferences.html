@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pit Wall — Preferences</title>
+    <link rel="icon" type="image/svg+xml" href="logos/pitwall-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Saira:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/app.css" />
+    <link rel="stylesheet" href="assets/settings.css" />
+    <link rel="stylesheet" href="assets/preferences.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-logo" src="logos/pitwall-icon.svg" alt="" aria-hidden="true" />
+        <span class="brand-name">Pit Wall</span>
+        <span class="brand-sub">Preferences</span>
+      </div>
+      <div class="controls">
+        <a class="sync" href="index.html">← Back to board</a>
+        <a class="sync" href="settings.html">Configure tiles</a>
+        <button class="sync primary" id="saveBtn">Save</button>
+      </div>
+    </header>
+
+    <div class="banner" id="banner" hidden></div>
+
+    <main class="settings pref">
+      <section class="intro">
+        <h1>Customize your pit wall</h1>
+        <p class="muted">
+          Your name and number, the livery, timing, and connected platforms.
+          Everything here is saved to <code>preferences.json</code> on this
+          machine — nothing leaves your computer.
+        </p>
+      </section>
+
+      <!-- IDENTITY -->
+      <section class="pref-card">
+        <h2 class="pref-title">Identity</h2>
+        <div class="pref-row">
+          <label for="prefName">Display name</label>
+          <input id="prefName" class="pref-input" type="text" maxlength="40" placeholder="e.g. Alex Driver" />
+        </div>
+        <div class="pref-row">
+          <label for="prefNumber">Car number</label>
+          <input id="prefNumber" class="pref-input num" type="text" maxlength="3" placeholder="22" />
+        </div>
+        <p class="pref-hint">Shown in the board header beside the Pit Wall wordmark. Leave the name empty to use your connected account name.</p>
+      </section>
+
+      <!-- THEME -->
+      <section class="pref-card">
+        <h2 class="pref-title">Theme</h2>
+        <div class="pref-row">
+          <label>Livery accent</label>
+          <div class="swatches" id="accentSwatches"></div>
+        </div>
+        <p class="pref-hint">The accent tints the header rule, sync button and live indicators across the board. Changes preview live on this page.</p>
+      </section>
+
+      <!-- TIMING -->
+      <section class="pref-card">
+        <h2 class="pref-title">Timing</h2>
+        <div class="pref-row">
+          <label>Auto-sync</label>
+          <div class="seg sync-int" id="syncSeg">
+            <button data-min="0" type="button">Off</button>
+            <button data-min="1" type="button">1 min</button>
+            <button data-min="5" type="button">5 min</button>
+            <button data-min="15" type="button">15 min</button>
+            <button data-min="30" type="button">30 min</button>
+          </div>
+        </div>
+
+        <div class="pref-sub">Shift — drives the “time to finish” countdown on the board</div>
+        <div class="pref-row">
+          <label>Show shift</label>
+          <div class="seg" id="shiftSeg">
+            <button data-on="1" type="button">On</button>
+            <button data-on="0" type="button">Off</button>
+          </div>
+        </div>
+        <div class="pref-row">
+          <label>Work days</label>
+          <div class="daypick" id="dayPick"></div>
+        </div>
+        <div class="pref-row">
+          <label for="shiftStart">Hours</label>
+          <input id="shiftStart" class="pref-input time" type="time" />
+          <span class="pref-tolab">to</span>
+          <input id="shiftEnd" class="pref-input time" type="time" />
+        </div>
+        <p class="pref-hint">The board header shows a live countdown to the end of today’s shift — or to the next shift when you’re off the clock.</p>
+      </section>
+
+      <!-- CONNECTIONS -->
+      <section class="pref-card">
+        <h2 class="pref-title">Connections &amp; tokens</h2>
+        <div id="connList" class="conn-list"><p class="muted">Loading connections…</p></div>
+        <a class="sync" href="onboard.html">＋ Add or update a connection</a>
+        <p class="pref-hint">Tokens are stored locally in <code>.secrets.json</code> (git-ignored, never in the repo). Removing a connection deletes its stored token.</p>
+      </section>
+
+      <p class="muted foot-hint">Saved to <code>preferences.json</code> on your machine. The board picks up changes on its next load or sync.</p>
+    </main>
+
+    <script src="assets/preferences.js"></script>
+  </body>
+</html>

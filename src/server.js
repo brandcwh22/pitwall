@@ -27,6 +27,7 @@ import { loadConfig, addConnection, removeConnection, ROOT } from './config.js';
 import { buildSnapshot } from './snapshot.js';
 import { createProvider, listProviderMeta, splitCredentials } from './providers/index.js';
 import { getConnectionSettings, saveTiles } from './settings.js';
+import { loadPreferences, savePreferences } from './preferences.js';
 import { defaultTiles } from './metrics.js';
 import { categoryFromName } from './providers/base.js';
 import { buildLegacyData } from './legacy.js';
@@ -55,6 +56,22 @@ const MIME = {
   '.ico': 'image/x-icon',
 };
 
+/** Merge board preferences (display name, car number) into the v1 SC_DATA meta. */
+function withPreferences(data, prefs) {
+  if (!prefs || (!prefs.name && !prefs.number)) return data;
+  const out = {};
+  for (const ws of Object.keys(data)) {
+    out[ws] = {};
+    for (const win of Object.keys(data[ws])) {
+      const d = data[ws][win];
+      out[ws][win] = d && d.meta
+        ? { ...d, meta: { ...d.meta, ...(prefs.name ? { driver: prefs.name } : {}), number: prefs.number || '22' } }
+        : d;
+    }
+  }
+  return out;
+}
+
 function sendJson(res, status, body) {
   const payload = JSON.stringify(body);
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -69,7 +86,12 @@ async function serveStatic(res, urlPath) {
     return res.end('Not found');
   }
   const body = await readFile(file);
-  res.writeHead(200, { 'Content-Type': MIME[extname(file)] || 'application/octet-stream' });
+  res.writeHead(200, {
+    'Content-Type': MIME[extname(file)] || 'application/octet-stream',
+    // Local-first app served from disk: never let the client cache a stale page,
+    // so preference/UI changes always show on the next load or navigation.
+    'Cache-Control': 'no-store, must-revalidate',
+  });
   res.end(body);
 }
 
@@ -130,15 +152,17 @@ const server = createServer(async (req, res) => {
     if (path === '/data.js') {
       const cfg = await loadConfig();
       if (!legacyCache) legacyCache = await buildLegacyData(cfg);
+      const data = withPreferences(legacyCache, await loadPreferences());
       res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' });
-      return res.end('window.SC_DATA = ' + JSON.stringify(legacyCache) + ';\n');
+      return res.end('window.SC_DATA = ' + JSON.stringify(data) + ';\n');
     }
 
     // v1 Sync button: rebuild the snapshot and hand back the whole SC_DATA.
     if (path === '/api/refresh') {
       const cfg = await loadConfig();
       legacyCache = await buildLegacyData(cfg);
-      return sendJson(res, 200, { ok: true, snapshot: legacyCache });
+      const data = withPreferences(legacyCache, await loadPreferences());
+      return sendJson(res, 200, { ok: true, snapshot: data });
     }
 
     // v1 activity bell — not wired to a source yet; return empty so it's quiet.
@@ -214,6 +238,18 @@ const server = createServer(async (req, res) => {
       } catch (err) {
         return sendJson(res, 400, { ok: false, error: String(err && err.message || err) });
       }
+    }
+
+    // Board-wide preferences: identity, theme, timing, countdown.
+    if (path === '/api/preferences') {
+      if (req.method === 'GET') return sendJson(res, 200, await loadPreferences());
+      if (req.method === 'POST' || req.method === 'PUT') {
+        const body = await readBody(req);
+        const saved = await savePreferences(body);
+        invalidateLegacy(); // name/number feed into SC_DATA
+        return sendJson(res, 200, { ok: true, preferences: saved });
+      }
+      return sendJson(res, 405, { ok: false, error: 'Method not allowed' });
     }
 
     // Statuses available on the connected platform — powers status selection.

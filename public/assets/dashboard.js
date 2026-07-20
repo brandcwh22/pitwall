@@ -30,7 +30,8 @@
   function setText(id, t){ var el=document.getElementById(id); if(el) el.textContent=t; }
   function renderHeader(){
     setText("driver", D.meta.driver);
-    setText("driverno", "#22");
+    setText("carNo", "#" + (D.meta.number || "22"));
+    setText("driverno", "#" + (D.meta.number || "22"));
     setText("mention", D.meta.mention);
     setText("workspace", D.meta.workspace);
     setText("snapTime", fmtTime(D.meta.generatedAt));

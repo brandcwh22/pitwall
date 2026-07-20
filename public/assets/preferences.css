@@ -1,0 +1,92 @@
+/* Preferences page — builds on app.css + settings.css, same F1 broadcast theme. */
+.pref { max-width: 760px; }
+
+.pref-card {
+  background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 10%, #171c26) 0%, #12161f 60%);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 34px -20px rgba(0, 0, 0, 0.9);
+  padding: 18px 18px 16px;
+  margin-top: 16px;
+}
+.pref-title {
+  margin: 0 0 14px; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); font-weight: 700; font-family: "Spline Sans Mono", monospace;
+}
+.pref-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 7px 0; }
+.pref-row > label {
+  width: 120px; flex: 0 0 auto; color: var(--muted); font-size: 11px;
+  font-family: "Spline Sans Mono", monospace; text-transform: uppercase; letter-spacing: 1px;
+}
+.pref-input {
+  flex: 1; min-width: 160px; background: #0b0e14; border: 1px solid var(--line); color: var(--ink);
+  border-radius: 8px; padding: 9px 12px; font-size: 15px;
+  font-family: "Saira", sans-serif; transition: 0.15s ease;
+}
+.pref-input.num { flex: 0 0 90px; min-width: 0; text-align: center; font-variant-numeric: tabular-nums; }
+.pref-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.pref-hint {
+  margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5;
+  font-family: "Spline Sans Mono", monospace;
+}
+.pref-hint code { color: var(--ink); background: #0b0e14; padding: 1px 5px; border-radius: 4px; }
+
+.sync.ghost { padding: 8px 12px; }
+
+/* Livery accent swatches (a touch larger than the tile ones) */
+.pref .swatches { gap: 8px; }
+.pref .swatch { width: 28px; height: 28px; }
+
+/* Connections list */
+.conn-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.conn-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 13px; background: #0b0e14; border: 1px solid var(--line); border-radius: 10px;
+}
+.conn-row .cr-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--green); flex: 0 0 auto; box-shadow: 0 0 8px var(--green); }
+.conn-row .cr-dot.off { background: var(--muted); box-shadow: none; }
+.conn-row .cr-body { flex: 1; min-width: 0; }
+.conn-row .cr-name { font-family: "Saira Condensed", sans-serif; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 0.4px; }
+.conn-row .cr-sub { color: var(--muted); font-size: 11px; font-family: "Spline Sans Mono", monospace; }
+.conn-row .cr-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+.conn-row .cr-test { color: var(--muted); font-size: 11px; font-family: "Spline Sans Mono", monospace; min-width: 0; }
+.conn-row .cr-test.ok { color: var(--green); } .conn-row .cr-test.bad { color: var(--red); }
+.conn-empty { color: var(--muted); font-size: 13px; padding: 6px 2px; }
+
+.mini {
+  border: 1px solid var(--line); background: transparent; color: var(--ink);
+  padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px;
+  font-family: "Saira Condensed", sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.mini:hover { border-color: var(--accent); }
+.mini.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* Shift schedule controls */
+.pref-sub {
+  margin: 16px 0 4px; padding-top: 12px; border-top: 1px dashed var(--line);
+  color: var(--muted); font-size: 11px; font-family: "Spline Sans Mono", monospace;
+  letter-spacing: 0.4px; text-transform: uppercase;
+}
+.daypick { display: flex; gap: 6px; flex-wrap: wrap; }
+.daybtn {
+  min-width: 42px; height: 34px; padding: 0 8px; border-radius: 8px;
+  border: 1px solid var(--line); background: #0b0e14; color: var(--muted); cursor: pointer;
+  font-family: "Saira Condensed", sans-serif; font-weight: 700; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.03em; transition: 0.12s ease;
+}
+.daybtn:hover { border-color: var(--accent); }
+.daybtn.active { background: linear-gradient(180deg, var(--red), var(--red-deep)); color: #fff; border-color: transparent; }
+.pref-input.time { flex: 0 0 140px; min-width: 0; }
+.pref-tolab { color: var(--muted); font-family: "Spline Sans Mono", monospace; font-size: 12px; }
+
+/* F1 livery accent picker — two-tone combo chips */
+#accentSwatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.livery {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px 6px 7px;
+  border: 1px solid var(--line); border-radius: 999px; background: #0b0e14; color: var(--ink);
+  cursor: pointer; font-family: "Saira Condensed", sans-serif; font-weight: 700; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.03em; transition: 0.14s ease;
+}
+.livery:hover { border-color: var(--accent); transform: translateY(-1px); }
+.livery.active { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent); }
+.lv-chip { width: 20px; height: 20px; border-radius: 999px; flex: 0 0 auto; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+.lv-name { line-height: 1; }
