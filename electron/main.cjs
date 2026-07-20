@@ -20,7 +20,9 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const SERVER = path.join(ROOT, 'src', 'server.js');
-const ICON = path.join(ROOT, 'build', 'icon.png');
+// Unpackaged (dev/test) runs get a TEST-badged icon so they're visually distinct
+// from an installed release sharing the Dock; the packaged app uses the clean icon.
+const ICON = path.join(ROOT, 'build', app.isPackaged ? 'icon.png' : 'icon-test.png');
 const PORT = Number(process.env.PORT) || 4270;
 const BASE = `http://localhost:${PORT}`;
 
@@ -94,7 +96,10 @@ function createWindow() {
     if (isExternal(url)) { e.preventDefault(); shell.openExternal(url); }
   });
 
-  win.loadURL(BASE);
+  // Clear any stale asset cache from a previous version, then load fresh.
+  win.webContents.session.clearCache()
+    .catch(() => {})
+    .finally(() => win.loadURL(BASE));
   win.on('closed', () => { win = null; });
 }
 
